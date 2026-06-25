@@ -130,19 +130,23 @@ export function ProductDetailModal({
             <div className="flex gap-2 mb-6">
               <a
                 href="tel:+917974024513"
-                className="flex-1 flex items-center justify-center gap-2 border border-black/12 rounded-xl py-3 text-sm font-medium text-foreground hover:bg-foreground hover:text-white transition-all"
+                className="group/call relative flex-1 flex items-center justify-center gap-1.5 px-2 border border-black/15 bg-white/50 backdrop-blur-sm text-[#111] rounded-xl py-3 text-sm font-bold uppercase tracking-wide overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/10 hover:border-black active:translate-y-0 active:scale-95"
               >
-                <Phone className="w-4 h-4" />
-                Call Now
+                <div className="absolute inset-0 bg-black translate-y-[100%] group-hover/call:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+                <div className="absolute top-0 -left-[100%] w-[120%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-[45deg] group-hover/call:left-[100%] transition-all duration-700 ease-in-out z-10 pointer-events-none" />
+                <Phone className="w-4 h-4 shrink-0 transition-colors duration-500 group-hover/call:text-white relative z-20" />
+                <span className="whitespace-nowrap transition-colors duration-500 group-hover/call:text-white relative z-20">Call Now</span>
               </a>
               <a
                 href={`https://wa.me/917974024513?text=${encodeURIComponent(`Hi, I'm interested in the *${product.name}* (Price: ₹${product.price.toLocaleString("en-IN")}). Could you provide more details?`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white rounded-xl py-3 text-sm font-medium hover:bg-[#128C7E] transition-all"
+                className="group/wa relative flex-1 flex items-center justify-center gap-1.5 px-2 bg-[#25D366] text-white rounded-xl py-3 text-sm font-bold uppercase tracking-wide overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#25D366]/40 active:translate-y-0 active:scale-95"
               >
-                <MessageCircle className="w-4 h-4" />
-                WhatsApp
+                <div className="absolute inset-0 bg-[#128C7E] translate-y-[100%] group-hover/wa:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+                <div className="absolute top-0 -left-[100%] w-[120%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-[45deg] group-hover/wa:left-[100%] transition-all duration-700 ease-in-out delay-75 z-10 pointer-events-none" />
+                <MessageCircle className="w-4 h-4 shrink-0 transition-transform duration-500 group-hover/wa:scale-110 group-hover/wa:-rotate-12 relative z-20" />
+                <span className="whitespace-nowrap relative z-20">WhatsApp</span>
               </a>
             </div>
 

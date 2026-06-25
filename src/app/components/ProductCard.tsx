@@ -56,22 +56,27 @@ export function ProductCard({ product, onViewDetails, onContact }: ProductCardPr
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2.5 mt-auto">
+        <div className="flex gap-2 mt-auto">
           <button
             onClick={() => onViewDetails(product)}
-            className="flex-1 flex items-center justify-center gap-2 border border-black/10 hover:border-black/30 rounded-full py-2.5 text-xs font-semibold uppercase tracking-wider text-[#333333] bg-white hover:bg-black hover:text-white transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-98 shadow-sm hover:shadow-md cursor-pointer group/details"
+            className="group/details relative flex-1 flex items-center justify-center gap-1.5 px-2 border border-black/15 bg-white/50 backdrop-blur-sm text-[#111] rounded-full py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/10 hover:border-black active:translate-y-0 active:scale-95 cursor-pointer"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
-            <Eye className="w-4 h-4 transition-transform duration-300 group-hover/details:scale-120 group-hover/details:rotate-6" />
-            View Details
+            <div className="absolute inset-0 bg-black translate-y-[100%] group-hover/details:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+            <div className="absolute top-0 -left-[100%] w-[120%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-[45deg] group-hover/details:left-[100%] transition-all duration-700 ease-in-out z-10 pointer-events-none" />
+            <Eye className="w-3.5 h-3.5 shrink-0 transition-colors duration-500 group-hover/details:text-white relative z-20" />
+            <span className="whitespace-nowrap transition-colors duration-500 group-hover/details:text-white relative z-20">View Details</span>
           </button>
+          
           <button
             onClick={() => onContact(product)}
-            className="flex-1 flex items-center justify-center gap-2 bg-[#1a1a1a] hover:bg-[#c9963e] text-white rounded-full py-2.5 text-xs font-semibold uppercase tracking-wider transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-98 shadow-sm hover:shadow-md hover:shadow-[#c9963e]/20 cursor-pointer group/contact"
+            className="group/contact relative flex-1 flex items-center justify-center gap-1.5 px-2 bg-[#111] text-white rounded-full py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#c9963e]/40 active:translate-y-0 active:scale-95 cursor-pointer"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
-            <MessageCircle className="w-4 h-4 transition-transform duration-300 group-hover/contact:scale-120 group-hover/contact:-translate-y-0.5" />
-            Contact Store
+            <div className="absolute inset-0 bg-gradient-to-r from-[#c9963e] to-[#e6bc73] translate-y-[100%] group-hover/contact:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+            <div className="absolute top-0 -left-[100%] w-[120%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-[45deg] group-hover/contact:left-[100%] transition-all duration-700 ease-in-out delay-75 z-10 pointer-events-none" />
+            <MessageCircle className="w-3.5 h-3.5 shrink-0 transition-transform duration-500 group-hover/contact:scale-110 group-hover/contact:-rotate-12 relative z-20" />
+            <span className="whitespace-nowrap relative z-20">Contact Store</span>
           </button>
         </div>
       </div>
