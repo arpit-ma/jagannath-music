@@ -56,19 +56,21 @@ export function ProductCard({ product, onViewDetails, onContact }: ProductCardPr
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-2.5 mt-auto">
           <button
             onClick={() => onViewDetails(product)}
-            className="flex-1 flex items-center justify-center gap-1.5 border border-black/12 rounded-xl py-2.5 text-sm font-medium text-foreground hover:bg-foreground hover:text-white transition-all duration-200"
+            className="flex-1 flex items-center justify-center gap-2 border border-black/10 hover:border-black/30 rounded-full py-2.5 text-xs font-semibold uppercase tracking-wider text-[#333333] bg-white hover:bg-black hover:text-white transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-98 shadow-sm hover:shadow-md cursor-pointer group/details"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
-            <Eye className="w-3.5 h-3.5" />
+            <Eye className="w-4 h-4 transition-transform duration-300 group-hover/details:scale-120 group-hover/details:rotate-6" />
             View Details
           </button>
           <button
             onClick={() => onContact(product)}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-foreground text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#c9963e] transition-all duration-200"
+            className="flex-1 flex items-center justify-center gap-2 bg-[#1a1a1a] hover:bg-[#c9963e] text-white rounded-full py-2.5 text-xs font-semibold uppercase tracking-wider transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-98 shadow-sm hover:shadow-md hover:shadow-[#c9963e]/20 cursor-pointer group/contact"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
-            <MessageCircle className="w-3.5 h-3.5" />
+            <MessageCircle className="w-4 h-4 transition-transform duration-300 group-hover/contact:scale-120 group-hover/contact:-translate-y-0.5" />
             Contact Store
           </button>
         </div>

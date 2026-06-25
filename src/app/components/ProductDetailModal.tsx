@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, CheckCircle2, Phone, MessageCircle } from "lucide-react";
 import type { Product } from "../data/products";
 
@@ -6,6 +6,8 @@ interface ProductDetailModalProps {
   product: Product | null;
   onClose: () => void;
   onContact: (product: Product) => void;
+  allProducts: Product[];
+  onSelectProduct: (product: Product) => void;
 }
 
 const benefits = [
@@ -15,12 +17,22 @@ const benefits = [
   { label: "Store Discounts", desc: "Exclusive pricing for walk-in customers" },
 ];
 
-export function ProductDetailModal({ product, onClose, onContact }: ProductDetailModalProps) {
+export function ProductDetailModal({ 
+  product, 
+  onClose, 
+  onContact, 
+  allProducts, 
+  onSelectProduct 
+}: ProductDetailModalProps) {
   const [activeImage, setActiveImage] = useState("");
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (product) {
       setActiveImage(product.image);
+      if (modalRef.current) {
+        modalRef.current.scrollTop = 0;
+      }
     }
   }, [product]);
 
@@ -28,13 +40,20 @@ export function ProductDetailModal({ product, onClose, onContact }: ProductDetai
 
   const allImages = [product.image, ...(product.images || [])];
 
+  const similarProducts = allProducts
+    .filter((p) => p.category === product.category && p.id !== product.id)
+    .slice(0, 4);
+
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Sheet */}
-      <div className="relative bg-white w-full sm:max-w-4xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[95dvh] overflow-y-auto">
+      <div 
+        ref={modalRef}
+        className="relative bg-white w-full sm:max-w-4xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[95dvh] overflow-y-auto"
+      >
         {/* Close */}
         <button
           onClick={onClose}
@@ -168,6 +187,44 @@ export function ProductDetailModal({ product, onClose, onContact }: ProductDetai
             )}
           </div>
         </div>
+
+        {/* Similar Products */}
+        {similarProducts.length > 0 && (
+          <div className="p-6 md:p-8 border-t border-black/6 bg-[#fafafa]">
+            <h3
+              className="text-foreground mb-4"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "1.1rem" }}
+            >
+              Similar Products
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {similarProducts.map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => onSelectProduct(p)}
+                  className="group cursor-pointer bg-white rounded-2xl border border-black/5 hover:border-[#c9963e]/40 p-3 flex flex-col transition-all duration-300 hover:shadow-md"
+                >
+                  <div className="relative aspect-square rounded-xl overflow-hidden bg-black/[0.02] mb-3 flex items-center justify-center">
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <span className="text-[10px] text-[#c9963e] font-semibold uppercase tracking-wider mb-1">
+                    {p.brand}
+                  </span>
+                  <h4 className="text-foreground text-xs font-semibold line-clamp-2 flex-grow mb-2 group-hover:text-[#c9963e] transition-colors leading-snug">
+                    {p.name}
+                  </h4>
+                  <div className="text-foreground text-sm font-bold">
+                    ₹{p.price.toLocaleString("en-IN")}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Benefits strip */}
         <div className="grid grid-cols-2 md:grid-cols-4 border-t border-black/6 bg-[#f9f9f9]">

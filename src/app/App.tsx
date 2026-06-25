@@ -12,6 +12,7 @@ import { InquirySection } from "./components/InquirySection";
 import { WhyChoose } from "./components/WhyChoose";
 import { StoreInfo } from "./components/StoreInfo";
 import { Footer } from "./components/Footer";
+import { WhatsAppWidget } from "./components/WhatsAppWidget";
 import type { Product, Category } from "./data/products";
 
 export default function App() {
@@ -232,7 +233,11 @@ export default function App() {
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
         onContact={handleContactProduct}
+        allProducts={productsState}
+        onSelectProduct={setSelectedProduct}
       />
+
+      <WhatsAppWidget />
     </div>
   );
 }
