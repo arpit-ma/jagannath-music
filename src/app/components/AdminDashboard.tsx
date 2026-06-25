@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, X, Sparkles, Folder, Tag, AlertCircle, Eye, LogOut, CheckCircle2, Search, RefreshCw, Mail, PhoneCall, MapPin, Calendar, Check, Loader2 } from "lucide-react";
 import type { Product, Category, Availability } from "../data/products";
 import { allCategories, brands } from "../data/products";
-import { db } from "../lib/firebase";
+import { db, storage } from "../lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 interface AdminDashboardProps {
   products: Product[];
@@ -54,14 +55,15 @@ export function AdminDashboard({
       });
 
       if (!res.ok) {
-        throw new Error("Failed to upload image");
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Upload failed (Status ${res.status})`);
       }
 
       const data = await res.json();
       setForm(prev => ({ ...prev, image: data.url }));
-    } catch (err) {
+    } catch (err: any) {
       console.error("Upload error:", err);
-      alert("Failed to upload the image. Please try again.");
+      alert(`Failed to upload the image: ${err.message || err}`);
     } finally {
       setUploadingImage(false);
     }
@@ -98,7 +100,7 @@ export function AdminDashboard({
       }));
     } catch (err: any) {
       console.error("Multiple upload error:", err);
-      alert(err.message || "Failed to upload some images. Please try again.");
+      alert(`Failed to upload some images: ${err.message || err}`);
     } finally {
       setUploadingMultiple(false);
     }
