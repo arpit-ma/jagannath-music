@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(req: Request) {
   try {
@@ -15,21 +20,19 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Ensure the public/uploads directory exists
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.mkdir(uploadDir, { recursive: true });
+    // Convert buffer to data URI to upload to Cloudinary
+    const base64Data = buffer.toString("base64");
+    const fileUri = `data:${file.type};base64,${base64Data}`;
 
-    // Clean name to prevent path traversals and add unique timestamp prefix
-    const safeFileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-    const filePath = path.join(uploadDir, safeFileName);
+    // Upload to Cloudinary
+    const uploadResponse = await cloudinary.uploader.upload(fileUri, {
+      folder: "jagannath-music",
+    });
 
-    // Save the file to the local directory
-    await fs.writeFile(filePath, buffer);
-
-    // Return the relative URL path that will be served by Next.js static files
-    return NextResponse.json({ url: `/uploads/${safeFileName}` });
-  } catch (err) {
-    console.error("Image upload API error:", err);
-    return NextResponse.json({ error: "Failed to upload image" }, { status: 500 });
+    // Return the secure URL from Cloudinary
+    return NextResponse.json({ url: uploadResponse.secure_url });
+  } catch (err: any) {
+    console.error("Cloudinary upload API error:", err);
+    return NextResponse.json({ error: err.message || "Failed to upload image" }, { status: 500 });
   }
 }

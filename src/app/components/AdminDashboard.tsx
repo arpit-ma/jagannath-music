@@ -101,18 +101,8 @@ export function AdminDashboard({
   };
 
   const uploadFile = async (file: File | Blob): Promise<string> => {
-    // If not running locally, or if local upload fails, use Firebase Storage
-    const isLocalhost = typeof window !== "undefined" && 
-      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-
     const name = (file as File).name || "image.jpg";
     const cleanedName = name.replace(/[^a-zA-Z0-9.-]/g, "_");
-
-    if (!isLocalhost) {
-      const storageRef = ref(storage, `products/${Date.now()}-${cleanedName}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      return await getDownloadURL(snapshot.ref);
-    }
 
     try {
       const formData = new FormData();
@@ -123,12 +113,12 @@ export function AdminDashboard({
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Local upload failed (Status ${res.status})`);
+        throw new Error(errData.error || `Upload failed (Status ${res.status})`);
       }
       const data = await res.json();
       return data.url;
-    } catch (localErr: any) {
-      console.warn("Local upload failed, falling back to Firebase Storage:", localErr);
+    } catch (apiErr: any) {
+      console.warn("API upload failed, falling back to Firebase Storage:", apiErr);
       const storageRef = ref(storage, `products/${Date.now()}-${cleanedName}`);
       const snapshot = await uploadBytes(storageRef, file);
       return await getDownloadURL(snapshot.ref);
