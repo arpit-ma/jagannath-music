@@ -21,7 +21,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../lib/firebase";
 import { AdminDashboard } from "../components/AdminDashboard";
-import type { Product } from "../data/products";
+import type { Product, CategoryItem } from "../data/products";
 import { Lock, Mail, Key, Sparkles, UserPlus, LogIn, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -44,6 +44,7 @@ export default function AdminPage() {
 
   // Dashboard state & CRUD
   const [productsState, setProductsState] = useState<Product[]>([]);
+  const [categoriesState, setCategoriesState] = useState<CategoryItem[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(false);
 
   // Listen to Auth State
@@ -52,7 +53,7 @@ export default function AdminPage() {
       setUser(currentUser);
       setLoading(false);
       if (currentUser) {
-        fetchProducts();
+        fetchDashboardData();
       }
     });
     return () => unsubscribe();
@@ -78,17 +79,24 @@ export default function AdminPage() {
     checkSignupStatus();
   }, [user]);
 
-  const fetchProducts = async () => {
+  const fetchDashboardData = async () => {
     setDashboardLoading(true);
     try {
-      const querySnapshot = await getDocs(collection(db, "products"));
-      const productsList: Product[] = [];
-      querySnapshot.forEach((docSnap) => {
-        productsList.push({ id: docSnap.id, ...docSnap.data() } as Product);
+      const pSnapshot = await getDocs(collection(db, "products"));
+      const pList: Product[] = [];
+      pSnapshot.forEach((docSnap) => {
+        pList.push({ id: docSnap.id, ...docSnap.data() } as Product);
       });
-      setProductsState(productsList);
+      setProductsState(pList);
+
+      const cSnapshot = await getDocs(collection(db, "categories"));
+      const cList: CategoryItem[] = [];
+      cSnapshot.forEach((docSnap) => {
+        cList.push({ id: docSnap.id, name: docSnap.data().name });
+      });
+      setCategoriesState(cList);
     } catch (err) {
-      console.error("Error loading products:", err);
+      console.error("Error loading dashboard data:", err);
     } finally {
       setDashboardLoading(false);
     }
@@ -126,6 +134,51 @@ export default function AdminPage() {
       setProductsState((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       console.error("Error deleting product from Firestore:", err);
+      throw err;
+    }
+  };
+
+  // Category CRUD
+  const handleAddCategory = async (name: string) => {
+    try {
+      const docRef = await addDoc(collection(db, "categories"), { name });
+      const newCategory: CategoryItem = { id: docRef.id, name };
+      setCategoriesState((prev) => [...prev, newCategory]);
+    } catch (err) {
+      console.error("Error adding category:", err);
+      throw err;
+    }
+  };
+
+  const handleUpdateCategory = async (id: string, newName: string) => {
+    try {
+      const docRef = doc(db, "categories", id);
+      await updateDoc(docRef, { name: newName });
+      setCategoriesState((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, name: newName } : c))
+      );
+    } catch (err) {
+      console.error("Error updating category:", err);
+      throw err;
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      // Find the category name first to check if any products use it
+      const categoryToDelete = categoriesState.find(c => c.id === id);
+      if (categoryToDelete) {
+        const inUse = productsState.some(p => p.category === categoryToDelete.name);
+        if (inUse) {
+          throw new Error(`Cannot delete category "${categoryToDelete.name}" because it is currently assigned to one or more products. Please update those products before deleting this category.`);
+        }
+      }
+
+      const docRef = doc(db, "categories", id);
+      await deleteDoc(docRef);
+      setCategoriesState((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      console.error("Error deleting category:", err);
       throw err;
     }
   };
@@ -212,9 +265,13 @@ export default function AdminPage() {
     return (
       <AdminDashboard
         products={productsState}
+        categories={categoriesState}
         onAddProduct={handleAddProduct}
         onUpdateProduct={handleUpdateProduct}
         onDeleteProduct={handleDeleteProduct}
+        onAddCategory={handleAddCategory}
+        onUpdateCategory={handleUpdateCategory}
+        onDeleteCategory={handleDeleteCategory}
         onBackToStore={handleLogout}
       />
     );

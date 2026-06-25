@@ -1,16 +1,20 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, X, Sparkles, Folder, Tag, AlertCircle, Eye, LogOut, CheckCircle2, Search, RefreshCw, Mail, PhoneCall, MapPin, Calendar, Check, Loader2 } from "lucide-react";
-import type { Product, Category, Availability } from "../data/products";
-import { allCategories, brands } from "../data/products";
+import type { Product, Category, Availability, CategoryItem } from "../data/products";
+import { brands } from "../data/products";
 import { db, storage } from "../lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 interface AdminDashboardProps {
   products: Product[];
+  categories: CategoryItem[];
   onAddProduct: (product: Omit<Product, "id">) => Promise<void>;
   onUpdateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
   onDeleteProduct: (id: string) => Promise<void>;
+  onAddCategory: (name: string) => Promise<void>;
+  onUpdateCategory: (id: string, name: string) => Promise<void>;
+  onDeleteCategory: (id: string) => Promise<void>;
   onBackToStore: () => void;
 }
 
@@ -18,12 +22,16 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1510915361894-db8b60106
 
 export function AdminDashboard({
   products,
+  categories,
   onAddProduct,
   onUpdateProduct,
   onDeleteProduct,
+  onAddCategory,
+  onUpdateCategory,
+  onDeleteCategory,
   onBackToStore
 }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<"products" | "inquiries">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "inquiries" | "categories">("products");
   
   // Inquiries State
   const [inquiries, setInquiries] = useState<any[]>([]);
@@ -407,6 +415,14 @@ export function AdminDashboard({
           >
             Customer Inquiries
           </button>
+          <button
+            onClick={() => setActiveTab("categories")}
+            className={`py-3 border-b-2 transition-all cursor-pointer ${
+              activeTab === "categories" ? "border-[#c9963e] text-[#c9963e]" : "border-transparent text-white/60 hover:text-white"
+            }`}
+          >
+            Category Management
+          </button>
         </div>
       </div>
 
@@ -499,8 +515,8 @@ export function AdminDashboard({
                 className="bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none cursor-pointer"
               >
                 <option value="All">All Categories</option>
-                {allCategories.filter(c => c !== "All").map(c => (
-                  <option key={c} value={c}>{c}</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.name}>{c.name}</option>
                 ))}
               </select>
             </div>
@@ -646,7 +662,7 @@ export function AdminDashboard({
           </div>
         </div>
         </>
-        ) : (
+        ) : activeTab === "inquiries" ? (
           <div className="flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
@@ -808,6 +824,58 @@ export function AdminDashboard({
               </div>
             )}
           </div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  Category Management
+                </h2>
+                <p className="text-muted-foreground text-sm">Add, edit, or remove product categories.</p>
+              </div>
+              <button
+                onClick={() => {
+                  const name = prompt("Enter new category name:");
+                  if (name && name.trim()) onAddCategory(name.trim());
+                }}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#c9963e] text-white hover:bg-[#b8852e] px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-[#c9963e]/10 transition-all cursor-pointer"
+              >
+                <Plus className="w-4.5 h-4.5" />
+                Add Category
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {categories.map((cat) => (
+                <div key={cat.id} className="bg-white rounded-3xl border border-black/5 p-6 shadow-sm flex items-center justify-between gap-4">
+                  <span className="font-bold text-foreground text-lg">{cat.name}</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        const newName = prompt("Edit category name:", cat.name);
+                        if (newName && newName.trim() && newName !== cat.name) {
+                          onUpdateCategory(cat.id, newName.trim());
+                        }
+                      }}
+                      className="p-2 border border-black/10 hover:border-[#c9963e]/30 text-muted-foreground hover:text-[#c9963e] hover:bg-[#c9963e]/5 rounded-xl transition-all cursor-pointer"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Are you sure you want to delete the category "${cat.name}"?`)) {
+                          onDeleteCategory(cat.id).catch(err => alert(err.message));
+                        }
+                      }}
+                      className="p-2 border border-red-100 hover:border-red-200 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </main>
 
@@ -867,8 +935,8 @@ export function AdminDashboard({
                     onChange={(e) => setForm(prev => ({ ...prev, category: e.target.value as Category }))}
                     className="w-full bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20 cursor-pointer"
                   >
-                    {allCategories.filter(c => c !== "All").map(c => (
-                      <option key={c} value={c}>{c}</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.name}>{c.name}</option>
                     ))}
                   </select>
                 </div>

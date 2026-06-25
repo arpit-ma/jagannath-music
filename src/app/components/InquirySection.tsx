@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 import { Phone, MessageCircle, Send, CheckCircle2, Loader2 } from "lucide-react";
-import { allCategories } from "../data/products";
+import type { Category } from "../data/products";
 import { db } from "../lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 interface InquirySectionProps {
   defaultProduct?: string;
+  categories: Category[];
 }
 
-export function InquirySection({ defaultProduct = "" }: InquirySectionProps) {
+export function InquirySection({ defaultProduct = "", categories }: InquirySectionProps) {
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -211,7 +212,7 @@ export function InquirySection({ defaultProduct = "" }: InquirySectionProps) {
                     style={{ backgroundColor: "rgba(255,255,255,0.06)" }}
                   >
                     <option value="" className="bg-[#1a1a1a]">Select a category</option>
-                    {allCategories.filter((c) => c !== "All").map((c) => (
+                    {categories.filter((c) => c !== "All").map((c) => (
                       <option key={c} value={c} className="bg-[#1a1a1a]">{c}</option>
                     ))}
                   </select>

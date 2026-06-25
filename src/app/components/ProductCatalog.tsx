@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import { Search, SlidersHorizontal, X, ChevronRight } from "lucide-react";
-import { allCategories, brands, priceRanges } from "../data/products";
+import { brands, priceRanges } from "../data/products";
 import type { Product, Category } from "../data/products";
 import { ProductCard } from "./ProductCard";
 
 interface ProductCatalogProps {
   products: Product[];
+  categories: Category[];
   initialCategory?: Category;
   onViewDetails: (product: Product) => void;
   onContact: (product: Product) => void;
 }
 
-export function ProductCatalog({ products, initialCategory, onViewDetails, onContact }: ProductCatalogProps) {
+export function ProductCatalog({ products, categories, initialCategory, onViewDetails, onContact }: ProductCatalogProps) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Category>(initialCategory ?? "All");
   const [selectedBrand, setSelectedBrand] = useState("All Brands");
@@ -66,7 +67,7 @@ export function ProductCatalog({ products, initialCategory, onViewDetails, onCon
           Categories
         </h4>
         <div className="space-y-1">
-          {allCategories.map((cat) => {
+          {categories.map((cat) => {
             const count = getCategoryCount(cat);
             const isActive = selectedCategory === cat;
             return (
@@ -254,7 +255,7 @@ export function ProductCatalog({ products, initialCategory, onViewDetails, onCon
 
             {/* Selected category pill (Mobile scroll tabs) */}
             <div className="flex lg:hidden gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
-              {allCategories.map((cat) => (
+              {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}

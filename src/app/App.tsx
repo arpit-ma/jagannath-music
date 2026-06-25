@@ -17,6 +17,7 @@ import type { Product, Category } from "./data/products";
 export default function App() {
   const [mounted, setMounted] = useState(false);
   const [productsState, setProductsState] = useState<Product[]>([]);
+  const [categoriesState, setCategoriesState] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -39,6 +40,7 @@ export default function App() {
 
     const fetchAndSeed = async () => {
       try {
+        // Fetch products
         const querySnapshot = await getDocs(collection(db, "products"));
         const productsList: Product[] = [];
         querySnapshot.forEach((docSnap) => {
@@ -67,8 +69,33 @@ export default function App() {
         } else {
           setProductsState(productsList);
         }
+
+        // Fetch categories
+        const catSnapshot = await getDocs(collection(db, "categories"));
+        const catList: string[] = [];
+        catSnapshot.forEach((docSnap) => {
+          catList.push(docSnap.data().name);
+        });
+
+        if (catList.length === 0) {
+          const { allCategories: defaultCategories } = await import("./data/products");
+          const batch = writeBatch(db);
+          
+          // Don't save "All" as a category in the DB since it's a structural filter element
+          const filteredCategories = defaultCategories.filter(c => c !== "All");
+          filteredCategories.forEach((catName) => {
+            const docRef = doc(collection(db, "categories"));
+            batch.set(docRef, { name: catName });
+          });
+          await batch.commit();
+
+          setCategoriesState(["All", ...filteredCategories]);
+        } else {
+          setCategoriesState(["All", ...catList]);
+        }
+
       } catch (err) {
-        console.error("Error loading products from Firestore:", err);
+        console.error("Error loading data from Firestore:", err);
       } finally {
         setLoading(false);
       }
@@ -175,6 +202,7 @@ export default function App() {
         <div ref={catalogRef}>
           <ProductCatalog
             products={productsState}
+            categories={categoriesState}
             initialCategory={catalogCategory}
             onViewDetails={setSelectedProduct}
             onContact={handleContactProduct}
@@ -182,7 +210,7 @@ export default function App() {
         </div>
 
         <div ref={inquiryRef}>
-          <InquirySection defaultProduct={inquiryProduct} />
+          <InquirySection defaultProduct={inquiryProduct} categories={categoriesState} />
         </div>
 
         <div ref={whyChooseRef}>

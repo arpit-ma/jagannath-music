@@ -1,17 +1,9 @@
-export type Category =
-  | "All"
-  | "Guitar"
-  | "Tabla"
-  | "Harmonium"
-  | "Keyboard"
-  | "Octapad"
-  | "Drum Set"
-  | "Studio Monitors"
-  | "Headphones"
-  | "Microphones"
-  | "Audio Interfaces"
-  | "Mixers"
-  | "Accessories";
+export type Category = string;
+
+export interface CategoryItem {
+  id: string;
+  name: string;
+}
 
 export type Availability = "In Stock" | "Limited Stock" | "Available on Order";
 
