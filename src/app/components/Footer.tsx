@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, MapPin, Instagram, Facebook, Youtube } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Instagram, Facebook } from "lucide-react";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import logoSrc from "@/imports/IMG_0835.png";
 
@@ -47,7 +47,6 @@ export function Footer({ onNavigate }: FooterProps) {
               {[
                 { icon: Instagram, href: "#" },
                 { icon: Facebook, href: "#" },
-                { icon: Youtube, href: "#" },
               ].map(({ icon: Icon, href }, i) => (
                 <a
                   key={i}
@@ -135,6 +134,25 @@ export function Footer({ onNavigate }: FooterProps) {
         <div className="border-t border-white/8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-white/25 text-xs">
             © {new Date().getFullYear()} Shree Jagannath Music. All rights reserved.
+          </p>
+          <p className="text-white/20 text-xs transition-colors select-none font-medium flex items-center gap-1.5">
+            <span>Designed by</span>
+            <a 
+              href="https://wolfix.dev" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="font-semibold text-white/35 hover:text-[#c9963e] transition-all duration-300 underline decoration-white/5 hover:decoration-transparent"
+            >
+              Wolfix.dev
+            </a>
+            <span className="text-white/10">•</span>
+            <span>Managed by</span>
+            <a 
+              href="#" 
+              className="font-semibold text-white/35 hover:text-[#c9963e] transition-all duration-300 underline decoration-white/5 hover:decoration-transparent"
+            >
+              cognitoo
+            </a>
           </p>
           <p className="text-white/25 text-xs">
             Prices shown are indicative. Contact store for latest pricing.
