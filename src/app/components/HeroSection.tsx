@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowDown, Tag } from "lucide-react";
 
 interface AnimatedCounterProps {
@@ -16,7 +16,7 @@ function AnimatedCounter({ value, index }: AnimatedCounterProps) {
       let currentText = "";
       let charIndex = 0;
       let intervalId: NodeJS.Timeout;
-      
+
       const delayTimeout = setTimeout(() => {
         intervalId = setInterval(() => {
           if (charIndex < value.length) {
@@ -47,11 +47,11 @@ function AnimatedCounter({ value, index }: AnimatedCounterProps) {
     const updateCounter = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / totalDuration, 1);
-      
+
       // Easing curve (easeOutExpo)
       const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
       const current = Math.floor(start + (end - start) * ease);
-      
+
       setCount(`${current}${suffix}`);
 
       if (progress < 1) {
@@ -72,10 +72,45 @@ interface HeroSectionProps {
 
 export function HeroSection({ onBrowse, onContact }: HeroSectionProps) {
   const [animate, setAnimate] = useState(false);
+  const [lang, setLang] = useState<"en" | "hi">("en");
+  const [isFading, setIsFading] = useState(false);
+  const [containerHeight, setContainerHeight] = useState<number>(0);
+
+  const englishRef = useRef<HTMLHeadingElement>(null);
+  const hindiRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     setAnimate(true);
+
+    const interval = setInterval(() => {
+      setIsFading(true);
+      setTimeout(() => {
+        setLang((prev) => (prev === "en" ? "hi" : "en"));
+        setIsFading(false);
+      }, 500); // Wait for fade-out to complete (500ms)
+    }, 6000); // Switch every 6 seconds (6000ms)
+
+    return () => clearInterval(interval);
   }, []);
+
+  // Measure dynamic heights of both elements to set container height precisely
+  useEffect(() => {
+    const handleResize = () => {
+      const enHeight = englishRef.current?.getBoundingClientRect().height || 0;
+      const hiHeight = hindiRef.current?.getBoundingClientRect().height || 0;
+      setContainerHeight(Math.max(enHeight, hiHeight));
+    };
+
+    // Calculate immediately and also after images/fonts might render
+    handleResize();
+    const timeoutId = setTimeout(handleResize, 150);
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [lang]); // Re-measure on state toggles and resizing
 
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden bg-[#0a0a0a]">
@@ -100,20 +135,47 @@ export function HeroSection({ onBrowse, onContact }: HeroSectionProps) {
           </span>
         </div>
 
-        {/* Headline */}
-        <h1
-          className="text-white max-w-3xl"
-          style={{
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
-            fontSize: "clamp(2.4rem, 5vw, 4rem)",
-            fontWeight: 700,
-            lineHeight: 1.1,
-            letterSpacing: "-0.02em",
-          }}
+        {/* Headline Container with dynamic heights to prevent layout shifts */}
+        <div 
+          className="relative w-full transition-all duration-300 ease-out" 
+          style={{ height: containerHeight ? `${containerHeight}px` : "auto" }}
         >
-          Your Complete Destination for Musical Instruments &{" "}
-          <span className="text-[#c9963e]">Professional Audio</span>
-        </h1>
+          {/* English Version */}
+          <h1
+            ref={englishRef}
+            className={`absolute top-0 left-0 w-full text-white max-w-3xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
+              lang === "en" && !isFading ? "opacity-100 translate-y-0 blur-none pointer-events-auto" : "opacity-0 -translate-y-2 blur-[2px] pointer-events-none"
+            }`}
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: "clamp(1.8rem, 4.8vw, 3.8rem)",
+              fontWeight: 700,
+              lineHeight: 1.2,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Chhattisgarh’s Most Trusted Destination for Musical Instruments &{" "}
+            <span className="text-[#c9963e]">Pro Audio</span>
+          </h1>
+
+          {/* Hindi Version */}
+          <h1
+            ref={hindiRef}
+            className={`absolute top-0 left-0 w-full text-white max-w-3xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
+              lang === "hi" && !isFading ? "opacity-100 translate-y-0 blur-none pointer-events-auto" : "opacity-0 -translate-y-2 blur-[2px] pointer-events-none"
+            }`}
+            style={{
+              fontFamily: "'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif",
+              fontSize: "clamp(1.6rem, 4.2vw, 3.4rem)",
+              fontWeight: 700,
+              lineHeight: 1.2,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            श्री जगन्नाथ म्यूजिक: वाद्य यंत्रों और{" "}
+            <span className="text-[#c9963e]">प्रोफेशनल ऑडियो</span> के लिए छत्तीसगढ़ का सबसे भरोसेमंद नाम।
+          </h1>
+        </div>
 
         <p className="mt-6 text-white/60 max-w-xl text-lg leading-relaxed">
           Explore premium instruments, studio gear, live sound equipment, and
