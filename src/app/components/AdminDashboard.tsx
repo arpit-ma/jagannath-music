@@ -365,34 +365,35 @@ export function AdminDashboard({
   return (
     <div className="min-h-screen bg-[#f6f6f6] text-foreground flex flex-col font-sans select-none">
       {/* Admin Navbar */}
-      <header className="bg-[#0a0a0a] text-white py-4 px-6 lg:px-8 shadow-md flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#c9963e] rounded-lg flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-white" />
+      <header className="bg-[#0a0a0a] text-white py-3 sm:py-4 px-4 sm:px-6 lg:px-8 shadow-md flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className="w-8 h-8 bg-[#c9963e] rounded-lg flex items-center justify-center flex-shrink-0">
+            <Sparkles className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
           </div>
-          <div>
-            <h1 className="font-bold text-base md:text-lg leading-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div className="min-w-0">
+            <h1 className="font-bold text-sm sm:text-base md:text-lg leading-tight truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Shree Jagannath Music
             </h1>
-            <span className="text-white/40 text-[10px] uppercase tracking-widest font-semibold">Store Management Portal</span>
+            <span className="text-white/40 text-[8px] sm:text-[10px] uppercase tracking-widest font-semibold block sm:inline">Store Management Portal</span>
           </div>
         </div>
 
         <button
           onClick={onBackToStore}
-          className="flex items-center gap-2 border border-white/20 hover:border-white/50 text-white/80 hover:text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
+          className="flex items-center gap-1.5 sm:gap-2 border border-white/20 hover:border-white/50 text-white/80 hover:text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex-shrink-0"
         >
-          <LogOut className="w-4 h-4" />
-          Sign Out
+          <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="hidden xs:inline">Sign Out</span>
+          <span className="xs:hidden">Exit</span>
         </button>
       </header>
 
       {/* Navigation Tabs */}
-      <div className="bg-[#121212] text-white border-t border-white/5 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex gap-6 text-sm font-semibold">
+      <div className="bg-[#121212] text-white border-t border-white/5 px-4 sm:px-6 lg:px-8 overflow-x-auto scrollbar-none">
+        <div className="max-w-7xl mx-auto flex gap-4 sm:gap-6 text-xs sm:text-sm font-semibold min-w-max">
           <button
             onClick={() => setActiveTab("products")}
-            className={`py-3.5 border-b-2 transition-all cursor-pointer ${
+            className={`py-3 border-b-2 transition-all cursor-pointer ${
               activeTab === "products" ? "border-[#c9963e] text-[#c9963e]" : "border-transparent text-white/60 hover:text-white"
             }`}
           >
@@ -400,7 +401,7 @@ export function AdminDashboard({
           </button>
           <button
             onClick={() => setActiveTab("inquiries")}
-            className={`py-3.5 border-b-2 transition-all cursor-pointer ${
+            className={`py-3 border-b-2 transition-all cursor-pointer ${
               activeTab === "inquiries" ? "border-[#c9963e] text-[#c9963e]" : "border-transparent text-white/60 hover:text-white"
             }`}
           >
@@ -423,7 +424,7 @@ export function AdminDashboard({
           </div>
           <button
             onClick={handleOpenAdd}
-            className="flex items-center gap-2 bg-[#c9963e] text-white hover:bg-[#b8852e] px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-[#c9963e]/10 transition-all cursor-pointer"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#c9963e] text-white hover:bg-[#b8852e] px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-[#c9963e]/10 transition-all cursor-pointer"
           >
             <Plus className="w-4.5 h-4.5" />
             Add Product
@@ -505,8 +506,8 @@ export function AdminDashboard({
             </div>
           </div>
 
-          {/* Table Container */}
-          <div className="overflow-x-auto">
+          {/* Table Container - Visible on larger screens */}
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#fcfcfc] text-muted-foreground text-xs font-bold uppercase tracking-wider border-b border-black/5">
@@ -578,6 +579,70 @@ export function AdminDashboard({
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Product Cards Grid - Visible on mobile only */}
+          <div className="p-4 grid grid-cols-1 gap-4 md:hidden bg-slate-50/50">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((p) => (
+                <div key={p.id} className="bg-white p-4 rounded-2xl border border-black/5 flex flex-col gap-3 shadow-sm">
+                  <div className="flex gap-3">
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="w-16 h-16 rounded-xl object-cover bg-black/5 border border-black/5 flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <span className="font-bold text-foreground text-sm leading-snug break-words">{p.name}</span>
+                      <span className="text-muted-foreground text-[10px] uppercase font-semibold tracking-wider mt-0.5">{p.brand}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between border-t border-black/5 pt-3">
+                    <div className="flex flex-col">
+                      <span className="text-[9px] uppercase text-muted-foreground font-semibold tracking-wider">Price</span>
+                      <span className="font-bold text-foreground text-sm">₹{p.price.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[9px] uppercase text-muted-foreground font-semibold tracking-wider mb-0.5">Status</span>
+                      <span
+                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                          p.availability === "In Stock"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : p.availability === "Limited Stock"
+                            ? "bg-orange-50 text-orange-700"
+                            : "bg-amber-50 text-amber-700"
+                        }`}
+                      >
+                        {p.availability}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 border-t border-black/5 pt-3 mt-1">
+                    <button
+                      onClick={() => handleOpenEdit(p)}
+                      className="flex-1 py-2.5 border border-black/10 hover:border-[#c9963e]/30 text-muted-foreground hover:text-[#c9963e] hover:bg-[#c9963e]/5 rounded-xl transition-all font-semibold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      Edit Details
+                    </button>
+                    <button
+                      onClick={() => setIsDeletingId(p.id)}
+                      className="flex-1 py-2.5 border border-red-100 hover:border-red-200 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-xl transition-all font-semibold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <div className="text-2xl mb-2">📦</div>
+                <div className="font-semibold text-foreground">No Products Found</div>
+              </div>
+            )}
           </div>
         </div>
         </>
