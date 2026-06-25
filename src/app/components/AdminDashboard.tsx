@@ -100,6 +100,41 @@ export function AdminDashboard({
     });
   };
 
+  const uploadFile = async (file: File | Blob): Promise<string> => {
+    // If not running locally, or if local upload fails, use Firebase Storage
+    const isLocalhost = typeof window !== "undefined" && 
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+    const name = (file as File).name || "image.jpg";
+    const cleanedName = name.replace(/[^a-zA-Z0-9.-]/g, "_");
+
+    if (!isLocalhost) {
+      const storageRef = ref(storage, `products/${Date.now()}-${cleanedName}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      return await getDownloadURL(snapshot.ref);
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file, cleanedName);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Local upload failed (Status ${res.status})`);
+      }
+      const data = await res.json();
+      return data.url;
+    } catch (localErr: any) {
+      console.warn("Local upload failed, falling back to Firebase Storage:", localErr);
+      const storageRef = ref(storage, `products/${Date.now()}-${cleanedName}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      return await getDownloadURL(snapshot.ref);
+    }
+  };
+
   const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -107,21 +142,8 @@ export function AdminDashboard({
     setUploadingImage(true);
     try {
       const compressedFile = await compressImage(file);
-      const formData = new FormData();
-      formData.append("file", compressedFile);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Upload failed (Status ${res.status})`);
-      }
-
-      const data = await res.json();
-      setForm(prev => ({ ...prev, image: data.url }));
+      const url = await uploadFile(compressedFile);
+      setForm(prev => ({ ...prev, image: url }));
     } catch (err: any) {
       console.error("Upload error:", err);
       alert(`Failed to upload the image: ${err.message || err}`);
@@ -138,21 +160,7 @@ export function AdminDashboard({
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
         const compressedFile = await compressImage(file);
-        const formData = new FormData();
-        formData.append("file", compressedFile);
-
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData
-        });
-
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || `Upload failed (Status ${res.status})`);
-        }
-
-        const data = await res.json();
-        return data.url;
+        return await uploadFile(compressedFile);
       });
 
       const uploadedUrls = await Promise.all(uploadPromises);
