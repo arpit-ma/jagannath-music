@@ -110,19 +110,21 @@ export function ProductDetailModal({ product, onClose, onContact }: ProductDetai
             {/* CTAs */}
             <div className="flex gap-2 mb-6">
               <a
-                href="tel:+919999999999"
+                href="tel:+917974024513"
                 className="flex-1 flex items-center justify-center gap-2 border border-black/12 rounded-xl py-3 text-sm font-medium text-foreground hover:bg-foreground hover:text-white transition-all"
               >
                 <Phone className="w-4 h-4" />
                 Call Now
               </a>
-              <button
-                onClick={() => onContact(product)}
-                className="flex-1 flex items-center justify-center gap-2 bg-foreground text-white rounded-xl py-3 text-sm font-medium hover:bg-[#c9963e] transition-all"
+              <a
+                href={`https://wa.me/917974024513?text=${encodeURIComponent(`Hi, I'm interested in the *${product.name}* (Price: ₹${product.price.toLocaleString("en-IN")}). Could you provide more details?`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white rounded-xl py-3 text-sm font-medium hover:bg-[#128C7E] transition-all"
               >
                 <MessageCircle className="w-4 h-4" />
                 WhatsApp
-              </button>
+              </a>
             </div>
 
             {/* Specs */}
