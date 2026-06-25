@@ -88,7 +88,7 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
                 Call Now
               </a>
               <a
-                href="https://wa.me/917974024513"
+                href={`https://wa.me/917974024513?text=${encodeURIComponent("Hello! I am interested in inquiring about your musical instruments.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2.5 bg-[#25D366] text-white px-6 py-3.5 rounded-full text-sm font-semibold hover:bg-[#128C7E] transition-all"
