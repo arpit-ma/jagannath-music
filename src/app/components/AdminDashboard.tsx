@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, X, Sparkles, Folder, Tag, AlertCircle, Eye, LogOut, CheckCircle2, Search, RefreshCw, Mail, PhoneCall, MapPin, Calendar, Check, Loader2 } from "lucide-react";
 import type { Product, Category, Availability, CategoryItem } from "../data/products";
-import { brands } from "../data/products";
+import { brands, allCategories } from "../data/products";
 import { db, storage } from "../lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -41,12 +41,76 @@ export function AdminDashboard({
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Category>("All");
+  const [syncingCategories, setSyncingCategories] = useState(false);
+
+  const handleSyncCategories = async () => {
+    setSyncingCategories(true);
+    try {
+      const existingNames = new Set(categories.map(c => c.name));
+      const toAdd = allCategories.filter(c => c !== "All" && !existingNames.has(c));
+      
+      if (toAdd.length === 0) {
+        alert("All frontend categories are already in the database.");
+        setSyncingCategories(false);
+        return;
+      }
+      
+      for (const name of toAdd) {
+        await onAddCategory(name);
+      }
+      alert(`Successfully added ${toAdd.length} frontend categories.`);
+    } catch (err: any) {
+      alert("Error syncing categories: " + err.message);
+    } finally {
+      setSyncingCategories(false);
+    }
+  };
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingMultiple, setUploadingMultiple] = useState(false);
+
+  const [categoryModalState, setCategoryModalState] = useState<{
+    isOpen: boolean;
+    mode: "add" | "edit" | "delete";
+    category: CategoryItem | null;
+    inputValue: string;
+    error: string;
+    loading: boolean;
+  }>({
+    isOpen: false,
+    mode: "add",
+    category: null,
+    inputValue: "",
+    error: "",
+    loading: false
+  });
+
+  const handleCategoryModalSubmit = async () => {
+    const { mode, category, inputValue } = categoryModalState;
+    setCategoryModalState(prev => ({ ...prev, error: "", loading: true }));
+
+    try {
+      if (mode === "add") {
+        if (!inputValue.trim()) throw new Error("Category name is required.");
+        await onAddCategory(inputValue.trim());
+      } else if (mode === "edit" && category) {
+        if (!inputValue.trim()) throw new Error("Category name is required.");
+        if (inputValue.trim() === category.name) {
+          setCategoryModalState(prev => ({ ...prev, isOpen: false, loading: false }));
+          return;
+        }
+        await onUpdateCategory(category.id, inputValue.trim());
+      } else if (mode === "delete" && category) {
+        await onDeleteCategory(category.id);
+      }
+      setCategoryModalState(prev => ({ ...prev, isOpen: false, loading: false }));
+    } catch (err: any) {
+      setCategoryModalState(prev => ({ ...prev, error: err.message, loading: false }));
+    }
+  };
 
   const compressImage = (file: File): Promise<Blob | File> => {
     return new Promise((resolve) => {
@@ -833,29 +897,56 @@ export function AdminDashboard({
                 </h2>
                 <p className="text-muted-foreground text-sm">Add, edit, or remove product categories.</p>
               </div>
-              <button
-                onClick={() => {
-                  const name = prompt("Enter new category name:");
-                  if (name && name.trim()) onAddCategory(name.trim());
-                }}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#c9963e] text-white hover:bg-[#b8852e] px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-[#c9963e]/10 transition-all cursor-pointer"
-              >
-                <Plus className="w-4.5 h-4.5" />
-                Add Category
-              </button>
+              <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={handleSyncCategories}
+                  disabled={syncingCategories}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-muted-foreground border border-black/10 hover:border-[#c9963e] hover:text-[#c9963e] px-5 py-3 rounded-xl text-sm font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw className={`w-4.5 h-4.5 ${syncingCategories ? 'animate-spin' : ''}`} />
+                  {syncingCategories ? 'Syncing...' : 'Sync Frontend Categories'}
+                </button>
+                <button
+                  onClick={() => {
+                    setCategoryModalState({
+                      isOpen: true,
+                      mode: "add",
+                      category: null,
+                      inputValue: "",
+                      error: "",
+                      loading: false
+                    });
+                  }}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#c9963e] text-white hover:bg-[#b8852e] px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-[#c9963e]/10 transition-all cursor-pointer"
+                >
+                  <Plus className="w-4.5 h-4.5" />
+                  Add Category
+                </button>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {categories.map((cat) => (
+              {categories.map((cat) => {
+                const productCount = products.filter(p => p.category === cat.name).length;
+                return (
                 <div key={cat.id} className="bg-white rounded-3xl border border-black/5 p-6 shadow-sm flex items-center justify-between gap-4">
-                  <span className="font-bold text-foreground text-lg">{cat.name}</span>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-bold text-foreground text-lg">{cat.name}</span>
+                    <span className="text-muted-foreground text-sm font-medium bg-[#f6f6f6] px-2 py-0.5 rounded-md w-fit">
+                      {productCount} product{productCount !== 1 ? 's' : ''}
+                    </span>
+                  </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => {
-                        const newName = prompt("Edit category name:", cat.name);
-                        if (newName && newName.trim() && newName !== cat.name) {
-                          onUpdateCategory(cat.id, newName.trim());
-                        }
+                        setCategoryModalState({
+                          isOpen: true,
+                          mode: "edit",
+                          category: cat,
+                          inputValue: cat.name,
+                          error: "",
+                          loading: false
+                        });
                       }}
                       className="p-2 border border-black/10 hover:border-[#c9963e]/30 text-muted-foreground hover:text-[#c9963e] hover:bg-[#c9963e]/5 rounded-xl transition-all cursor-pointer"
                     >
@@ -863,9 +954,14 @@ export function AdminDashboard({
                     </button>
                     <button
                       onClick={() => {
-                        if (confirm(`Are you sure you want to delete the category "${cat.name}"?`)) {
-                          onDeleteCategory(cat.id).catch(err => alert(err.message));
-                        }
+                        setCategoryModalState({
+                          isOpen: true,
+                          mode: "delete",
+                          category: cat,
+                          inputValue: "",
+                          error: "",
+                          loading: false
+                        });
                       }}
                       className="p-2 border border-red-100 hover:border-red-200 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
                     >
@@ -873,7 +969,8 @@ export function AdminDashboard({
                     </button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -1167,6 +1264,70 @@ export function AdminDashboard({
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-3 rounded-xl transition-all cursor-pointer disabled:opacity-50"
               >
                 {saving ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Modal */}
+      {categoryModalState.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col gap-4 transform scale-100 transition-all text-sm text-foreground">
+            {categoryModalState.mode === "delete" ? (
+              <div className="text-center">
+                <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-base mb-1">Delete Category</h3>
+                <p className="text-muted-foreground text-xs mb-4">
+                  Are you sure you want to delete the "{categoryModalState.category?.name}" category? 
+                  Note: You cannot delete a category that is currently assigned to any products.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h3 className="font-bold text-base mb-4">
+                  {categoryModalState.mode === "add" ? "Add New Category" : "Edit Category"}
+                </h3>
+                <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Category Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={categoryModalState.inputValue}
+                  onChange={(e) => setCategoryModalState(prev => ({ ...prev, inputValue: e.target.value, error: "" }))}
+                  className="w-full bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20"
+                  autoFocus
+                />
+              </div>
+            )}
+            
+            {categoryModalState.error && (
+              <div className="text-red-500 text-xs text-center mt-2 font-medium">
+                {categoryModalState.error}
+              </div>
+            )}
+            
+            <div className="flex gap-2 mt-2">
+              <button
+                disabled={categoryModalState.loading}
+                onClick={() => setCategoryModalState(prev => ({ ...prev, isOpen: false }))}
+                className="flex-1 bg-[#f6f6f6] hover:bg-[#eeeeee] text-foreground text-xs font-bold py-3 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={categoryModalState.loading}
+                onClick={handleCategoryModalSubmit}
+                className={`flex-1 text-white text-xs font-bold py-3 rounded-xl transition-all cursor-pointer disabled:opacity-50 ${categoryModalState.mode === "delete" ? 'bg-red-600 hover:bg-red-700' : 'bg-[#c9963e] hover:bg-[#b8852e]'}`}
+              >
+                {categoryModalState.loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin" /> Processing...
+                  </span>
+                ) : (
+                  categoryModalState.mode === "delete" ? "Delete" : "Save"
+                )}
               </button>
             </div>
           </div>
