@@ -5,7 +5,6 @@ export interface CategoryItem {
   name: string;
 }
 
-export type Availability = "In Stock" | "Limited Stock" | "Available on Order";
 
 export interface Product {
   id: string;
@@ -13,7 +12,7 @@ export interface Product {
   brand: string;
   category: Category;
   price: number;
-  availability: Availability;
+  stock: number;
   image: string;
   images?: string[];
   shortDescription: string;
@@ -24,7 +23,7 @@ export interface Product {
 
 export const products: Product[] = [];
 
-export const featuredCategories = [];
+export const featuredCategories: { id: string; name: string; description: string; image: string; category: Category }[] = [];
 
 export const brands = ["All Brands", "Yamaha", "Roland", "Casio", "Behringer", "Shure", "JBL", "AKG", "Audio-Technica", "Focusrite", "Other Brands"];
 

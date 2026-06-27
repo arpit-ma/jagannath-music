@@ -17,7 +17,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
   const [selectedCategory, setSelectedCategory] = useState<Category>(initialCategory ?? "All");
   const [selectedBrand, setSelectedBrand] = useState("All Brands");
   const [selectedPriceIdx, setSelectedPriceIdx] = useState(0);
-  const [selectedAvailability, setSelectedAvailability] = useState("All");
+  const [selectedStockStatus, setSelectedStockStatus] = useState("All");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
     const matchBrand = selectedBrand === "All Brands" || p.brand === selectedBrand;
     const range = priceRanges[selectedPriceIdx];
     const matchPrice = p.price >= range.min && p.price <= range.max;
-    const matchAvail = selectedAvailability === "All" || p.availability === selectedAvailability;
+    const matchAvail = selectedStockStatus === "All" || (selectedStockStatus === "In Stock" ? p.stock > 0 : p.stock === 0);
     const matchSearch =
       search === "" ||
       p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -43,14 +43,14 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
     setSelectedCategory("All");
     setSelectedBrand("All Brands");
     setSelectedPriceIdx(0);
-    setSelectedAvailability("All");
+    setSelectedStockStatus("All");
   };
 
   const hasActiveFilters =
     selectedCategory !== "All" ||
     selectedBrand !== "All Brands" ||
     selectedPriceIdx !== 0 ||
-    selectedAvailability !== "All" ||
+    selectedStockStatus !== "All" ||
     search !== "";
 
   const getCategoryCount = (cat: Category) => {
@@ -144,18 +144,17 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
         </div>
       </div>
 
-      {/* Availability */}
       <div>
         <h4 className="text-xs font-bold text-foreground mb-4 uppercase tracking-wider">
-          Availability
+          Stock Status
         </h4>
         <div className="space-y-2">
-          {["All", "In Stock", "Limited Stock", "Available on Order"].map((status) => {
-            const isSelected = selectedAvailability === status;
+          {["All", "In Stock", "Out of Stock"].map((status) => {
+            const isSelected = selectedStockStatus === status;
             return (
               <button
                 key={status}
-                onClick={() => setSelectedAvailability(status)}
+                onClick={() => setSelectedStockStatus(status)}
                 className="w-full flex items-center gap-3 text-left py-1 text-sm text-muted-foreground hover:text-foreground transition-colors group"
               >
                 <div
@@ -245,7 +244,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
                       selectedCategory !== "All",
                       selectedBrand !== "All Brands",
                       selectedPriceIdx !== 0,
-                      selectedAvailability !== "All",
+                      selectedStockStatus !== "All",
                       search !== "",
                     ].filter(Boolean).length}
                   </span>
@@ -303,12 +302,12 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
                       <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedPriceIdx(0)} />
                     </span>
                   )}
-                  {selectedAvailability !== "All" && (
+                  {selectedStockStatus !== "All" && (
                     <span className="inline-flex items-center gap-1 bg-black/5 text-foreground text-xs font-semibold px-2.5 py-1 rounded-full">
-                      {selectedAvailability}
+                      {selectedStockStatus}
                       <X
                         className="w-3 h-3 cursor-pointer"
-                        onClick={() => setSelectedAvailability("All")}
+                        onClick={() => setSelectedStockStatus("All")}
                       />
                     </span>
                   )}

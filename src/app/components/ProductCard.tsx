@@ -7,11 +7,7 @@ interface ProductCardProps {
   onContact: (product: Product) => void;
 }
 
-const availabilityStyle: Record<string, string> = {
-  "In Stock": "bg-emerald-50 text-emerald-700",
-  "Order Now": "bg-amber-50 text-amber-700",
-  "Limited Stock": "bg-orange-50 text-orange-700",
-};
+
 
 export function ProductCard({ product, onViewDetails, onContact }: ProductCardProps) {
   return (
@@ -24,8 +20,8 @@ export function ProductCard({ product, onViewDetails, onContact }: ProductCardPr
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute top-3 left-3">
-          <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${availabilityStyle[product.availability]}`}>
-            {product.availability}
+          <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${product.stock > 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+            {product.stock > 0 ? "In Stock" : "Out of Stock"}
           </span>
         </div>
       </div>

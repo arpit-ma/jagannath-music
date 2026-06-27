@@ -72,8 +72,8 @@ export function ProductDetailModal({
                 className="w-full h-full object-cover transition-all duration-300"
               />
               <div className="absolute top-4 left-4">
-                <span className="bg-white/90 backdrop-blur-sm text-foreground text-xs font-semibold px-3 py-1.5 rounded-full border border-black/8">
-                  {product.availability}
+                <span className={`bg-white/90 backdrop-blur-sm text-xs font-semibold px-3 py-1.5 rounded-full border border-black/8 ${product.stock > 0 ? "text-emerald-700" : "text-red-700"}`}>
+                  {product.stock > 0 ? "In Stock" : "Out of Stock"}
                 </span>
               </div>
             </div>

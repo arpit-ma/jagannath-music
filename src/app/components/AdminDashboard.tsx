@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, X, Sparkles, Folder, Tag, AlertCircle, Eye, LogOut, CheckCircle2, Search, RefreshCw, Mail, PhoneCall, MapPin, Calendar, Check, Loader2 } from "lucide-react";
-import type { Product, Category, Availability, CategoryItem } from "../data/products";
+import type { Product, Category, CategoryItem } from "../data/products";
 import { brands, allCategories } from "../data/products";
 import { db, storage } from "../lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
@@ -214,6 +214,7 @@ export function AdminDashboard({
     }
   };
 
+
   const handleMultipleImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -305,7 +306,7 @@ export function AdminDashboard({
     otherBrand: "",
     category: "Guitar" as Category,
     price: 0,
-    availability: "In Stock" as Availability,
+    stock: 1,
     image: "",
     images: [] as string[],
     shortDescription: "",
@@ -321,7 +322,7 @@ export function AdminDashboard({
       otherBrand: "",
       category: "Guitar",
       price: 0,
-      availability: "In Stock",
+      stock: 1,
       image: "",
       images: [],
       shortDescription: "",
@@ -345,7 +346,7 @@ export function AdminDashboard({
       otherBrand: "",
       category: p.category,
       price: p.price,
-      availability: p.availability,
+      stock: p.stock,
       image: p.image === DEFAULT_IMAGE ? "" : p.image,
       images: p.images || [],
       shortDescription: p.shortDescription || "",
@@ -385,7 +386,7 @@ export function AdminDashboard({
         brand: finalBrand,
         category: form.category,
         price: Number(form.price),
-        availability: form.availability,
+        stock: Number(form.stock),
         image: form.image.trim() || DEFAULT_IMAGE,
         images: form.images,
         shortDescription: form.shortDescription.trim(),
@@ -549,7 +550,7 @@ export function AdminDashboard({
             </div>
             <div>
               <div className="text-2xl font-bold text-foreground">
-                {products.filter(p => p.availability === "In Stock").length}
+                {products.filter(p => p.stock > 0).length}
               </div>
               <div className="text-muted-foreground text-xs font-medium uppercase tracking-wider">In Stock Items</div>
             </div>
@@ -594,7 +595,7 @@ export function AdminDashboard({
                   <th className="px-6 py-4">Product</th>
                   <th className="px-6 py-4">Category</th>
                   <th className="px-6 py-4">Price</th>
-                  <th className="px-6 py-4">Availability</th>
+                  <th className="px-6 py-4">Stock</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -620,14 +621,12 @@ export function AdminDashboard({
                       <td className="px-6 py-4">
                         <span
                           className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                            p.availability === "In Stock"
+                            p.stock > 0
                               ? "bg-emerald-50 text-emerald-700"
-                              : p.availability === "Limited Stock"
-                              ? "bg-orange-50 text-orange-700"
-                              : "bg-amber-50 text-amber-700"
+                              : "bg-red-50 text-red-700"
                           }`}
                         >
-                          {p.availability}
+                          {p.stock > 0 ? `${p.stock} in stock` : "Out of Stock"}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right space-x-1.5 whitespace-nowrap">
@@ -687,14 +686,12 @@ export function AdminDashboard({
                       <span className="text-[9px] uppercase text-muted-foreground font-semibold tracking-wider mb-0.5">Status</span>
                       <span
                         className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                          p.availability === "In Stock"
+                          p.stock > 0
                             ? "bg-emerald-50 text-emerald-700"
-                            : p.availability === "Limited Stock"
-                            ? "bg-orange-50 text-orange-700"
-                            : "bg-amber-50 text-amber-700"
+                            : "bg-red-50 text-red-700"
                         }`}
                       >
-                        {p.availability}
+                        {p.stock > 0 ? `${p.stock} left` : "Out of Stock"}
                       </span>
                     </div>
                   </div>
@@ -1056,18 +1053,18 @@ export function AdminDashboard({
                   />
                 </div>
 
-                {/* Availability */}
+                {/* Stock Quantity */}
                 <div>
-                  <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Availability</label>
-                  <select
-                    value={form.availability}
-                    onChange={(e) => setForm(prev => ({ ...prev, availability: e.target.value as Availability }))}
-                    className="w-full bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20 cursor-pointer"
-                  >
-                    <option value="In Stock">In Stock</option>
-                    <option value="Limited Stock">Limited Stock</option>
-                    <option value="Available on Order">Available on Order</option>
-                  </select>
+                  <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Stock Quantity *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    placeholder="e.g. 10"
+                    value={form.stock === undefined ? "" : form.stock}
+                    onChange={(e) => setForm(prev => ({ ...prev, stock: Number(e.target.value) }))}
+                    className="w-full bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20"
+                  />
                 </div>
               </div>
 
@@ -1075,12 +1072,22 @@ export function AdminDashboard({
               <div>
                 <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Product Image</label>
                 <div className="flex flex-col sm:flex-row gap-4 items-center bg-[#f6f6f6] p-4 rounded-xl border border-dashed border-black/10">
-                  <div className="w-16 h-16 rounded-lg bg-black/5 flex items-center justify-center overflow-hidden border border-black/5 flex-shrink-0">
+                  <div className="relative w-16 h-16 rounded-lg bg-black/5 flex items-center justify-center overflow-hidden border border-black/5 flex-shrink-0 group">
                     <img
                       src={form.image || DEFAULT_IMAGE}
                       alt="Product preview"
                       className="w-full h-full object-cover"
                     />
+                    {form.image && (
+                      <button
+                        type="button"
+                        onClick={() => setForm(prev => ({ ...prev, image: "" }))}
+                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-pointer"
+                        title="Remove Image"
+                      >
+                        <X className="w-4 h-4 text-white" />
+                      </button>
+                    )}
                   </div>
                   <div className="flex-1 w-full">
                     <input
@@ -1091,12 +1098,24 @@ export function AdminDashboard({
                       id="image-file-input"
                       disabled={uploadingImage}
                     />
-                    <label
-                      htmlFor="image-file-input"
-                      className="inline-flex items-center justify-center bg-white border border-black/10 hover:border-black/20 text-foreground px-4 py-2.5 rounded-xl text-xs font-semibold cursor-pointer select-none transition-all disabled:opacity-50"
-                    >
-                      {uploadingImage ? "Uploading..." : "Upload Image File"}
-                    </label>
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor="image-file-input"
+                        className="inline-flex items-center justify-center bg-white border border-black/10 hover:border-black/20 text-foreground px-4 py-2.5 rounded-xl text-xs font-semibold cursor-pointer select-none transition-all disabled:opacity-50"
+                      >
+                        {uploadingImage ? "Uploading..." : "Upload Image File"}
+                      </label>
+                      {form.image && (
+                        <button
+                          type="button"
+                          onClick={() => setForm(prev => ({ ...prev, image: "" }))}
+                          className="inline-flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Remove
+                        </button>
+                      )}
+                    </div>
                     <p className="text-[10px] text-muted-foreground mt-1.5">
                       Supports PNG, JPG, JPEG. Saved locally to public/uploads/.
                     </p>
@@ -1104,10 +1123,10 @@ export function AdminDashboard({
                 </div>
               </div>
 
-              {/* Additional Preview Images (List Upload Grid) */}
+              {/* Additional Images Upload Grid */}
               <div>
                 <label className="block text-muted-foreground text-xs font-semibold uppercase mb-2 flex items-center gap-1">
-                  Additional Preview Images
+                  Additional Images
                 </label>
                 
                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 mb-2">
@@ -1142,7 +1161,7 @@ export function AdminDashboard({
                 
                 {uploadingMultiple && (
                   <p className="text-[10px] text-[#c9963e] font-semibold animate-pulse">
-                    Uploading previews... Please wait.
+                    Uploading images... Please wait.
                   </p>
                 )}
               </div>

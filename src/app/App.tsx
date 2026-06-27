@@ -47,29 +47,7 @@ export default function App() {
         querySnapshot.forEach((docSnap) => {
           productsList.push({ id: docSnap.id, ...docSnap.data() } as Product);
         });
-
-        if (productsList.length === 0) {
-          // If Firestore is empty, seed it with the default list
-          const { products: defaultProducts } = await import("./data/products");
-          const batch = writeBatch(db);
-          
-          defaultProducts.forEach((p) => {
-            const docRef = doc(collection(db, "products"));
-            const { id, ...rest } = p; // Remove temporary client-side ID
-            batch.set(docRef, { ...rest });
-          });
-          await batch.commit();
-
-          // Fetch the populated database
-          const seededSnapshot = await getDocs(collection(db, "products"));
-          const seededList: Product[] = [];
-          seededSnapshot.forEach((docSnap) => {
-            seededList.push({ id: docSnap.id, ...docSnap.data() } as Product);
-          });
-          setProductsState(seededList);
-        } else {
-          setProductsState(productsList);
-        }
+        setProductsState(productsList);
 
         // Fetch categories
         const catSnapshot = await getDocs(collection(db, "categories"));
