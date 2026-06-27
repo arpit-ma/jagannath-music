@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, SlidersHorizontal, X, ChevronRight } from "lucide-react";
-import { brands, priceRanges } from "../data/products";
+import { priceRanges } from "../data/products";
 import type { Product, Category } from "../data/products";
 import { ProductCard } from "./ProductCard";
 
@@ -23,6 +23,11 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
   useEffect(() => {
     if (initialCategory) setSelectedCategory(initialCategory);
   }, [initialCategory]);
+
+  const availableBrands = useMemo(() => {
+    const brandsSet = new Set(products.map(p => p.brand).filter(Boolean));
+    return ["All Brands", ...Array.from(brandsSet).sort()];
+  }, [products]);
 
   const filtered = products.filter((p) => {
     const matchCat = selectedCategory === "All" || p.category === selectedCategory;
@@ -104,7 +109,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
           onChange={(e) => setSelectedBrand(e.target.value)}
           className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 cursor-pointer"
         >
-          {brands.map((b) => (
+          {availableBrands.map((b) => (
             <option key={b} value={b}>
               {b}
             </option>
