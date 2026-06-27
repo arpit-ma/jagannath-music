@@ -301,7 +301,7 @@ export function AdminDashboard({
   // Form State
   const [form, setForm] = useState({
     name: "",
-    brand: "Yamaha",
+    brand: "",
     otherBrand: "",
     category: "Guitar" as Category,
     price: 0,
@@ -317,7 +317,7 @@ export function AdminDashboard({
   const resetForm = () => {
     setForm({
       name: "",
-      brand: "Yamaha",
+      brand: "",
       otherBrand: "",
       category: "Guitar",
       price: 0,
@@ -341,8 +341,8 @@ export function AdminDashboard({
     setEditingProduct(p);
     setForm({
       name: p.name,
-      brand: brands.includes(p.brand) ? p.brand : "Other Brands",
-      otherBrand: brands.includes(p.brand) ? "" : p.brand,
+      brand: p.brand,
+      otherBrand: "",
       category: p.category,
       price: p.price,
       availability: p.availability,
@@ -365,7 +365,7 @@ export function AdminDashboard({
 
     setSaving(true);
     try {
-      const finalBrand = form.brand === "Other Brands" ? (form.otherBrand || "Other Brands") : form.brand;
+      const finalBrand = form.brand.trim() || "Unknown Brand";
       const parsedFeatures = form.featuresText
         ? form.featuresText.split(",").map(f => f.trim()).filter(Boolean)
         : [];
@@ -1012,16 +1012,15 @@ export function AdminDashboard({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Brand */}
                 <div>
-                  <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Brand</label>
-                  <select
+                  <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Brand *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Yamaha, Casio"
                     value={form.brand}
                     onChange={(e) => setForm(prev => ({ ...prev, brand: e.target.value }))}
-                    className="w-full bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20 cursor-pointer"
-                  >
-                    {brands.filter(b => b !== "All Brands").map(b => (
-                      <option key={b} value={b}>{b}</option>
-                    ))}
-                  </select>
+                    className="w-full bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20"
+                  />
                 </div>
 
                 {/* Category */}
@@ -1039,20 +1038,7 @@ export function AdminDashboard({
                 </div>
               </div>
 
-              {/* Other Brand Input (if Other Brands is selected) */}
-              {form.brand === "Other Brands" && (
-                <div>
-                  <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Custom Brand Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Fender, Ibanez"
-                    value={form.otherBrand}
-                    onChange={(e) => setForm(prev => ({ ...prev, otherBrand: e.target.value }))}
-                    className="w-full bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20"
-                  />
-                </div>
-              )}
+
 
               {/* Price and Availability Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
