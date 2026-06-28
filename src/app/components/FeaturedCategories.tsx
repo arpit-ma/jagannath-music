@@ -39,7 +39,7 @@ export function FeaturedCategories({ products, onSelectCategory }: FeaturedCateg
             <h2
               className="text-foreground"
               style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontFamily: "'Roboto', sans-serif",
                 fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
                 fontWeight: 700,
                 lineHeight: 1.15,
@@ -84,7 +84,7 @@ export function FeaturedCategories({ products, onSelectCategory }: FeaturedCateg
                   <h3
                     className="text-white mb-2 tracking-tight group-hover:text-[#c9963e] transition-colors duration-300"
                     style={{
-                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      fontFamily: "'Roboto', sans-serif",
                       fontSize: isFirst ? "1.75rem" : "1.2rem",
                       fontWeight: 700,
                     }}
@@ -109,7 +109,7 @@ export function FeaturedCategories({ products, onSelectCategory }: FeaturedCateg
           <button
             onClick={() => onSelectCategory("All")}
             className="group flex items-center justify-center gap-2 bg-white text-foreground border border-black/10 px-6 py-3.5 rounded-full text-sm font-semibold hover:border-black/30 hover:bg-[#f6f6f6] transition-all w-full sm:w-auto"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            style={{ fontFamily: "'Roboto', sans-serif" }}
           >
             View All Categories
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

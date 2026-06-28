@@ -65,7 +65,7 @@ export function Navbar({ onNavigate }: NavbarProps) {
           <div className="flex flex-col leading-tight select-none">
             <span
               className={`font-bold tracking-tight text-[0.98rem] transition-all duration-300 group-hover:text-[#c9963e] ${logoTextClass}`}
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              style={{ fontFamily: "'Roboto', sans-serif" }}
             >
               Shree Jagannath
             </span>
@@ -85,7 +85,7 @@ export function Navbar({ onNavigate }: NavbarProps) {
               key={link.section}
               onClick={() => onNavigate(link.section)}
               className={`relative ${navTextColor} ${navHoverColor} transition-colors text-sm font-semibold tracking-wide py-1.5 group/nav cursor-pointer`}
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              style={{ fontFamily: "'Roboto', sans-serif" }}
             >
               {link.label}
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#c9963e] transition-all duration-300 group-hover/nav:w-full" />
@@ -98,7 +98,7 @@ export function Navbar({ onNavigate }: NavbarProps) {
           <a
             href="tel:+917974024513"
             className={`flex items-center gap-2 text-sm font-semibold ${scrolled ? "text-muted-foreground" : "text-white/70"} hover:text-[#c9963e] transition-colors group/phone`}
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            style={{ fontFamily: "'Roboto', sans-serif" }}
           >
             <div className={`w-7 h-7 rounded-full ${scrolled ? "bg-black/5" : "bg-white/10"} group-hover/phone:bg-[#c9963e]/10 flex items-center justify-center transition-colors`}>
               <Phone className={`w-3.5 h-3.5 ${scrolled ? "text-muted-foreground" : "text-white/70"} group-hover/phone:text-[#c9963e]`} />
@@ -108,7 +108,7 @@ export function Navbar({ onNavigate }: NavbarProps) {
           <button
             onClick={() => onNavigate("inquiry")}
             className={`${scrolled ? "bg-[#1a1a1a]" : "bg-white/15 backdrop-blur-sm border border-white/20"} hover:bg-[#c9963e] text-white px-5.5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-lg hover:shadow-[#c9963e]/15 transform active:scale-95 cursor-pointer`}
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            style={{ fontFamily: "'Roboto', sans-serif" }}
           >
             Get Quote
           </button>
@@ -144,7 +144,7 @@ export function Navbar({ onNavigate }: NavbarProps) {
               key={link.section}
               onClick={() => { onNavigate(link.section); setMenuOpen(false); }}
               className="text-left text-foreground font-semibold text-sm py-1.5 hover:text-[#c9963e] transition-colors"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              style={{ fontFamily: "'Roboto', sans-serif" }}
             >
               {link.label}
             </button>
@@ -152,7 +152,7 @@ export function Navbar({ onNavigate }: NavbarProps) {
           <button
             onClick={() => { onNavigate("inquiry"); setMenuOpen(false); }}
             className="bg-[#1a1a1a] hover:bg-[#c9963e] text-white py-3 rounded-full text-xs font-bold uppercase tracking-wider w-full mt-2 cursor-pointer transition-colors"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            style={{ fontFamily: "'Roboto', sans-serif" }}
           >
             Get a Quote
           </button>

@@ -45,7 +45,7 @@ export function WhyChoose() {
           <h2
             className="text-foreground"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: "'Roboto', sans-serif",
               fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
               fontWeight: 700,
               lineHeight: 1.15,
@@ -69,7 +69,7 @@ export function WhyChoose() {
                 </div>
                 <h3
                   className="text-foreground font-semibold text-lg mb-3"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                  style={{ fontFamily: "'Roboto', sans-serif" }}
                 >
                   {b.title}
                 </h3>

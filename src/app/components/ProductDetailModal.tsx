@@ -140,14 +140,14 @@ export function ProductDetailModal({
             </div>
             <h2
               className="text-foreground mb-3 leading-tight"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "1.4rem" }}
+              style={{ fontFamily: "'Roboto', sans-serif", fontWeight: 700, fontSize: "1.4rem" }}
             >
               {product.name}
             </h2>
             <div className="mb-4">
               <span
                 className="text-foreground"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "1.75rem" }}
+                style={{ fontFamily: "'Roboto', sans-serif", fontWeight: 700, fontSize: "1.75rem" }}
               >
                 ₹{product.price.toLocaleString("en-IN")}
               </span>
@@ -186,7 +186,7 @@ export function ProductDetailModal({
               <div className="mb-5">
                 <h4
                   className="text-foreground mb-3"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600, fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.08em" }}
+                  style={{ fontFamily: "'Roboto', sans-serif", fontWeight: 600, fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.08em" }}
                 >
                   Specifications
                 </h4>
@@ -206,7 +206,7 @@ export function ProductDetailModal({
               <div>
                 <h4
                   className="text-foreground mb-3"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600, fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.08em" }}
+                  style={{ fontFamily: "'Roboto', sans-serif", fontWeight: 600, fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.08em" }}
                 >
                   Key Features
                 </h4>
@@ -228,7 +228,7 @@ export function ProductDetailModal({
           <div className="p-6 md:p-8 border-t border-black/6 bg-[#fafafa]">
             <h3
               className="text-foreground mb-4"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "1.1rem" }}
+              style={{ fontFamily: "'Roboto', sans-serif", fontWeight: 700, fontSize: "1.1rem" }}
             >
               Similar Products
             </h3>
@@ -270,7 +270,7 @@ export function ProductDetailModal({
                 } ${i < 2 ? "border-b" : ""
                 } md:border-b-0 md:border-r md:last:border-r-0`}
             >
-              <div className="text-foreground text-sm font-semibold mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <div className="text-foreground text-sm font-semibold mb-0.5" style={{ fontFamily: "'Roboto', sans-serif" }}>
                 {b.label}
               </div>
               <div className="text-muted-foreground text-xs leading-relaxed">{b.desc}</div>

@@ -147,7 +147,7 @@ export function HeroSection({ onBrowse, onContact }: HeroSectionProps) {
               lang === "en" && !isFading ? "opacity-100 translate-y-0 blur-none pointer-events-auto" : "opacity-0 -translate-y-2 blur-[2px] pointer-events-none"
             }`}
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: "'Roboto', sans-serif",
               fontSize: "clamp(1.8rem, 4.8vw, 3.8rem)",
               fontWeight: 700,
               lineHeight: 1.2,
@@ -165,7 +165,7 @@ export function HeroSection({ onBrowse, onContact }: HeroSectionProps) {
               lang === "hi" && !isFading ? "opacity-100 translate-y-0 blur-none pointer-events-auto" : "opacity-0 -translate-y-2 blur-[2px] pointer-events-none"
             }`}
             style={{
-              fontFamily: "'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif",
+              fontFamily: "'Noto Sans Devanagari', 'Roboto', sans-serif",
               fontSize: "clamp(1.6rem, 4.2vw, 3.4rem)",
               fontWeight: 700,
               lineHeight: 1.2,
@@ -187,7 +187,7 @@ export function HeroSection({ onBrowse, onContact }: HeroSectionProps) {
           <button
             onClick={onBrowse}
             className="bg-white text-[#0a0a0a] px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#c9963e] hover:text-white transition-all duration-200 flex items-center justify-center gap-2 w-full sm:w-auto"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            style={{ fontFamily: "'Roboto', sans-serif" }}
           >
             Browse Products
             <ArrowDown className="w-4 h-4" />
@@ -195,7 +195,7 @@ export function HeroSection({ onBrowse, onContact }: HeroSectionProps) {
           <button
             onClick={onContact}
             className="border border-white/30 text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:border-white/60 hover:bg-white/5 transition-all duration-200 text-center w-full sm:w-auto"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            style={{ fontFamily: "'Roboto', sans-serif" }}
           >
             Contact Store
           </button>
@@ -220,7 +220,7 @@ export function HeroSection({ onBrowse, onContact }: HeroSectionProps) {
             >
               <div
                 className="text-white"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "1.5rem", fontWeight: 700 }}
+                style={{ fontFamily: "'Roboto', sans-serif", fontSize: "1.5rem", fontWeight: 700 }}
               >
                 <AnimatedCounter value={stat.value} index={i} />
               </div>

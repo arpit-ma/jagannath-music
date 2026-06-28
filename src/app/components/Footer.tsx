@@ -34,7 +34,7 @@ export function Footer({ onNavigate }: FooterProps) {
                 className="w-10 h-10 object-contain"
               />
               <div>
-                <div className="text-white font-semibold text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                <div className="text-white font-semibold text-sm" style={{ fontFamily: "'Roboto', sans-serif" }}>
                   Shree Jagannath
                 </div>
                 <div className="text-white/30 text-[0.6rem] tracking-widest uppercase">Music</div>
@@ -61,7 +61,7 @@ export function Footer({ onNavigate }: FooterProps) {
 
           {/* Categories */}
           <div>
-            <h4 className="text-white text-sm font-semibold mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h4 className="text-white text-sm font-semibold mb-4" style={{ fontFamily: "'Roboto', sans-serif" }}>
               Product Categories
             </h4>
             <ul className="space-y-2">
@@ -80,7 +80,7 @@ export function Footer({ onNavigate }: FooterProps) {
 
           {/* Quick links */}
           <div>
-            <h4 className="text-white text-sm font-semibold mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h4 className="text-white text-sm font-semibold mb-4" style={{ fontFamily: "'Roboto', sans-serif" }}>
               Quick Links
             </h4>
             <ul className="space-y-2">
@@ -99,7 +99,7 @@ export function Footer({ onNavigate }: FooterProps) {
 
           {/* Contact */}
           <div>
-            <h4 className="text-white text-sm font-semibold mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h4 className="text-white text-sm font-semibold mb-4" style={{ fontFamily: "'Roboto', sans-serif" }}>
               Contact Information
             </h4>
             <ul className="space-y-3">

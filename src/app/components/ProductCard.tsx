@@ -46,7 +46,7 @@ export function ProductCard({ product, onViewDetails, onContact }: ProductCardPr
         </div>
         <h3
           className="text-foreground mb-2 leading-snug"
-          style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600, fontSize: "0.95rem" }}
+          style={{ fontFamily: "'Roboto', sans-serif", fontWeight: 600, fontSize: "0.95rem" }}
         >
           {product.name}
         </h3>
@@ -58,7 +58,7 @@ export function ProductCard({ product, onViewDetails, onContact }: ProductCardPr
         <div className="mb-4">
           <span
             className="text-foreground"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "1.25rem" }}
+            style={{ fontFamily: "'Roboto', sans-serif", fontWeight: 700, fontSize: "1.25rem" }}
           >
             ₹{product.price.toLocaleString("en-IN")}
           </span>
@@ -72,7 +72,7 @@ export function ProductCard({ product, onViewDetails, onContact }: ProductCardPr
               onViewDetails(product);
             }}
             className="group/details relative flex-1 flex items-center justify-center gap-1.5 px-2 border border-black/15 bg-white/50 backdrop-blur-sm text-[#111] rounded-full py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/10 hover:border-black active:translate-y-0 active:scale-95 cursor-pointer"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            style={{ fontFamily: "'Roboto', sans-serif" }}
           >
             <div className="absolute inset-0 bg-black translate-y-[100%] group-hover/details:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
             <div className="absolute top-0 -left-[100%] w-[120%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-[45deg] group-hover/details:left-[100%] transition-all duration-700 ease-in-out z-10 pointer-events-none" />
@@ -86,7 +86,7 @@ export function ProductCard({ product, onViewDetails, onContact }: ProductCardPr
               onContact(product);
             }}
             className="group/contact relative flex-1 flex items-center justify-center gap-1.5 px-2 bg-[#111] text-white rounded-full py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#c9963e]/40 active:translate-y-0 active:scale-95 cursor-pointer"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            style={{ fontFamily: "'Roboto', sans-serif" }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[#c9963e] to-[#e6bc73] translate-y-[100%] group-hover/contact:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
             <div className="absolute top-0 -left-[100%] w-[120%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-[45deg] group-hover/contact:left-[100%] transition-all duration-700 ease-in-out delay-75 z-10 pointer-events-none" />

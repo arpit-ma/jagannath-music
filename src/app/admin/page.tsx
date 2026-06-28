@@ -291,7 +291,7 @@ export default function AdminPage() {
           <div className="w-12 h-12 bg-[#c9963e]/15 border border-[#c9963e]/30 rounded-2xl flex items-center justify-center mb-4">
             <Lock className="w-5 h-5 text-[#c9963e]" />
           </div>
-          <h2 className="text-xl font-bold text-white tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <h2 className="text-xl font-bold text-white tracking-tight" style={{ fontFamily: "'Roboto', sans-serif" }}>
             {authMode === "login" ? "Admin Access Control" : "Create Administrator Account"}
           </h2>
           <p className="text-white/40 text-xs mt-1.5 leading-relaxed">

@@ -85,7 +85,7 @@ export function WhatsAppWidget() {
         target="_blank"
         rel="noopener noreferrer"
         className="whatsapp-widget-animated fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-white border border-black/10 rounded-full pl-3.5 pr-5 py-2.5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden cursor-pointer select-none"
-        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        style={{ fontFamily: "'Roboto', sans-serif" }}
         id="whatsapp-floating-widget"
       >
         {/* Shine Sweep Overlay */}

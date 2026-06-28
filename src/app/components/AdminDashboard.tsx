@@ -421,7 +421,7 @@ export function AdminDashboard({
             <Sparkles className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" />
           </div>
           <div className="min-w-0">
-            <h1 className="font-bold text-sm sm:text-base md:text-lg leading-tight truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h1 className="font-bold text-sm sm:text-base md:text-lg leading-tight truncate" style={{ fontFamily: "'Roboto', sans-serif" }}>
               Shree Jagannath Music
             </h1>
             <span className="text-white/40 text-[8px] sm:text-[10px] uppercase tracking-widest font-semibold block sm:inline">Store Management Portal</span>
@@ -475,7 +475,7 @@ export function AdminDashboard({
             {/* Page title and add button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Roboto', sans-serif" }}>
               Products Dashboard
             </h2>
             <p className="text-muted-foreground text-sm">Add, remove, or edit products and prices in real-time.</p>
@@ -712,7 +712,7 @@ export function AdminDashboard({
           <div className="flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Roboto', sans-serif" }}>
                   Customer Inquiries
                 </h2>
                 <p className="text-muted-foreground text-sm">View and manage contact inquiries and requests from the storefront.</p>
@@ -764,7 +764,7 @@ export function AdminDashboard({
             ) : filteredInquiries.length === 0 ? (
               <div className="text-center py-20 bg-white rounded-3xl border border-black/5">
                 <div className="text-4xl mb-4">💬</div>
-                <h3 className="font-bold text-foreground text-base mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>No Inquiries Found</h3>
+                <h3 className="font-bold text-foreground text-base mb-1" style={{ fontFamily: "'Roboto', sans-serif" }}>No Inquiries Found</h3>
                 <p className="text-muted-foreground text-sm font-medium">No contact inquiries exist matching the filters.</p>
               </div>
             ) : (
@@ -795,7 +795,7 @@ export function AdminDashboard({
 
                       {/* Header details */}
                       <div className="space-y-3">
-                        <h4 className="font-bold text-lg text-foreground pr-24" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                        <h4 className="font-bold text-lg text-foreground pr-24" style={{ fontFamily: "'Roboto', sans-serif" }}>
                           {inq.name}
                         </h4>
                         
@@ -874,7 +874,7 @@ export function AdminDashboard({
           <div className="flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Roboto', sans-serif" }}>
                   Category Management
                 </h2>
                 <p className="text-muted-foreground text-sm">Add, edit, or remove product categories.</p>
@@ -956,7 +956,7 @@ export function AdminDashboard({
           <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden transform scale-100 transition-all select-text">
             {/* Modal Header */}
             <div className="px-6 py-5 border-b border-black/5 flex items-center justify-between bg-white sticky top-0">
-              <h3 className="font-bold text-foreground text-lg" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <h3 className="font-bold text-foreground text-lg" style={{ fontFamily: "'Roboto', sans-serif" }}>
                 {editingProduct ? "Edit Product Details" : "Add New Product"}
               </h3>
               <button
@@ -1225,7 +1225,7 @@ export function AdminDashboard({
               <AlertCircle className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-bold text-foreground text-base mb-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <h3 className="font-bold text-foreground text-base mb-1" style={{ fontFamily: "'Roboto', sans-serif" }}>
                 Confirm Deletion
               </h3>
               <p className="text-muted-foreground text-xs leading-relaxed">

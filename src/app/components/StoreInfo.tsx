@@ -17,7 +17,7 @@ export function StoreInfo() {
           </p>
           <h2
             className="text-foreground"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "clamp(1.75rem, 3vw, 2.5rem)", fontWeight: 700, lineHeight: 1.15 }}
+            style={{ fontFamily: "'Roboto', sans-serif", fontSize: "clamp(1.75rem, 3vw, 2.5rem)", fontWeight: 700, lineHeight: 1.15 }}
           >
             Store Information
           </h2>
@@ -39,7 +39,7 @@ export function StoreInfo() {
                 </div>
                 <div
                   className="text-foreground font-semibold mb-1"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                  style={{ fontFamily: "'Roboto', sans-serif" }}
                 >
                   Shree Jagannath Music
                 </div>
@@ -69,7 +69,7 @@ export function StoreInfo() {
                 <div className="w-8 h-8 bg-[#f6f6f6] rounded-lg flex items-center justify-center">
                   <MapPin className="w-4 h-4 text-[#c9963e]" />
                 </div>
-                <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Address</span>
+                <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Roboto', sans-serif" }}>Address</span>
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Shop No., EG 19, Rajiv Plaza,<br />
@@ -85,7 +85,7 @@ export function StoreInfo() {
                 <div className="w-8 h-8 bg-[#f6f6f6] rounded-lg flex items-center justify-center">
                   <Phone className="w-4 h-4 text-[#c9963e]" />
                 </div>
-                <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Contact</span>
+                <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Roboto', sans-serif" }}>Contact</span>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <a href="tel:+917974024513" className="flex items-center gap-2 hover:text-foreground transition-colors">
@@ -108,7 +108,7 @@ export function StoreInfo() {
                 <div className="w-8 h-8 bg-[#f6f6f6] rounded-lg flex items-center justify-center">
                   <Clock className="w-4 h-4 text-[#c9963e]" />
                 </div>
-                <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Business Hours</span>
+                <span className="font-semibold text-foreground text-sm" style={{ fontFamily: "'Roboto', sans-serif" }}>Business Hours</span>
               </div>
               <div className="space-y-2">
                 {hours.map((h) => (

@@ -75,7 +75,7 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
             </p>
             <h2
               className="text-white mb-6"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: "clamp(1.75rem, 3vw, 2.75rem)", fontWeight: 700, lineHeight: 1.1 }}
+              style={{ fontFamily: "'Roboto', sans-serif", fontSize: "clamp(1.75rem, 3vw, 2.75rem)", fontWeight: 700, lineHeight: 1.1 }}
             >
               Get the Best Price & Store Discounts
             </h2>
@@ -114,7 +114,7 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
                 <div key={item.title} className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-[#c9963e] mt-0.5 flex-shrink-0" />
                   <div>
-                    <div className="text-white text-sm font-medium" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                    <div className="text-white text-sm font-medium" style={{ fontFamily: "'Roboto', sans-serif" }}>
                       {item.title}
                     </div>
                     <div className="text-white/40 text-sm">{item.desc}</div>
@@ -133,7 +133,7 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
                 </div>
                 <h3
                   className="text-white mb-2"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: "1.25rem" }}
+                  style={{ fontFamily: "'Roboto', sans-serif", fontWeight: 700, fontSize: "1.25rem" }}
                 >
                   Inquiry Sent!
                 </h3>
@@ -151,7 +151,7 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
               <form onSubmit={handleSubmit} className="space-y-4">
                 <h3
                   className="text-white mb-6"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600, fontSize: "1.1rem" }}
+                  style={{ fontFamily: "'Roboto', sans-serif", fontWeight: 600, fontSize: "1.1rem" }}
                 >
                   Send an Inquiry
                 </h3>
@@ -239,7 +239,7 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
                   type="submit"
                   disabled={loading}
                   className="w-full bg-[#c9963e] text-white py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#b8852e] transition-colors mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                  style={{ fontFamily: "'Roboto', sans-serif" }}
                 >
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

@@ -220,7 +220,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
           <h2
             className="text-foreground animate-fade-in"
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: "'Roboto', sans-serif",
               fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
               fontWeight: 700,
               lineHeight: 1.15,
@@ -388,7 +388,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
                     <button
                       onClick={() => setVisibleCount((prev) => prev + 6)}
                       className="group flex items-center justify-center gap-2 bg-white text-foreground border border-black/10 px-8 py-3.5 rounded-full text-sm font-semibold hover:border-black/30 hover:bg-[#f6f6f6] transition-all w-full sm:w-auto"
-                      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                      style={{ fontFamily: "'Roboto', sans-serif" }}
                     >
                       Load More Products
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -401,7 +401,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
                 <div className="text-5xl mb-4">🎵</div>
                 <h3
                   className="text-foreground font-bold mb-2"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                  style={{ fontFamily: "'Roboto', sans-serif" }}
                 >
                   No products found
                 </h3>
@@ -435,7 +435,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
             <div className="flex items-center justify-between px-6 py-5 border-b border-black/5">
               <span
                 className="font-bold text-foreground text-base"
-                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                style={{ fontFamily: "'Roboto', sans-serif" }}
               >
                 Filters
               </span>
