@@ -17,14 +17,15 @@ const benefits = [
   { label: "Store Discounts", desc: "Exclusive pricing for walk-in customers" },
 ];
 
-export function ProductDetailModal({ 
-  product, 
-  onClose, 
-  onContact, 
-  allProducts, 
-  onSelectProduct 
+export function ProductDetailModal({
+  product,
+  onClose,
+  onContact,
+  allProducts,
+  onSelectProduct
 }: ProductDetailModalProps) {
   const [activeImage, setActiveImage] = useState("");
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,12 +48,12 @@ export function ProductDetailModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-800" onClick={onClose} />
 
       {/* Sheet */}
-      <div 
+      <div
         ref={modalRef}
-        className="relative bg-white w-full sm:max-w-4xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[95dvh] overflow-y-auto"
+        className="relative bg-white w-full sm:max-w-4xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[95dvh] overflow-y-auto animate-in fade-in slide-in-from-bottom-12 sm:slide-in-from-bottom-8 sm:zoom-in-[0.98] duration-300 ease-out"
       >
         {/* Close */}
         <button
@@ -65,11 +66,14 @@ export function ProductDetailModal({
         <div className="grid md:grid-cols-2">
           {/* Image */}
           <div className="flex flex-col bg-[#f6f6f6] p-6 justify-center gap-4">
-            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-black/5 shadow-inner">
+            <div
+              className="relative aspect-square w-full rounded-2xl overflow-hidden bg-black/5 shadow-inner cursor-pointer group"
+              onClick={() => setIsFullscreen(true)}
+            >
               <img
                 src={activeImage || product.image}
                 alt={product.name}
-                className="w-full h-full object-cover transition-all duration-300"
+                className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute top-4 left-4">
                 <span className={`bg-white/90 backdrop-blur-sm text-xs font-semibold px-3 py-1.5 rounded-full border border-black/8 ${product.stock > 0 ? "text-emerald-700" : "text-red-700"}`}>
@@ -77,7 +81,7 @@ export function ProductDetailModal({
                 </span>
               </div>
             </div>
-            
+
             {/* Thumbnails */}
             {allImages.length > 1 && (
               <div className="flex gap-2 overflow-x-auto py-1 justify-center">
@@ -85,16 +89,15 @@ export function ProductDetailModal({
                   <button
                     key={idx}
                     onClick={() => setActiveImage(img)}
-                    className={`w-14 h-14 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 cursor-pointer ${
-                      (activeImage || product.image) === img 
-                        ? "border-[#c9963e]" 
-                        : "border-black/5 hover:border-black/20"
-                    }`}
+                    className={`w-14 h-14 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 cursor-pointer ${(activeImage || product.image) === img
+                      ? "border-[#c9963e]"
+                      : "border-black/5 hover:border-black/20"
+                      }`}
                   >
                     <img
                       src={img}
                       alt={`${product.name} preview ${idx}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain p-1"
                     />
                   </button>
                 ))}
@@ -208,11 +211,11 @@ export function ProductDetailModal({
                   onClick={() => onSelectProduct(p)}
                   className="group cursor-pointer bg-white rounded-2xl border border-black/5 hover:border-[#c9963e]/40 p-3 flex flex-col transition-all duration-300 hover:shadow-md"
                 >
-                  <div className="relative aspect-square rounded-xl overflow-hidden bg-black/[0.02] mb-3 flex items-center justify-center">
+                  <div className="relative aspect-square rounded-xl overflow-hidden bg-black/[0.02] mb-3 flex items-center justify-center p-2">
                     <img
                       src={p.image}
                       alt={p.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <span className="text-[10px] text-[#c9963e] font-semibold uppercase tracking-wider mb-1">
@@ -235,11 +238,9 @@ export function ProductDetailModal({
           {benefits.map((b, i) => (
             <div
               key={b.label}
-              className={`p-4 border-black/6 ${
-                i % 2 === 0 ? "border-r" : ""
-              } ${
-                i < 2 ? "border-b" : ""
-              } md:border-b-0 md:border-r md:last:border-r-0`}
+              className={`p-4 border-black/6 ${i % 2 === 0 ? "border-r" : ""
+                } ${i < 2 ? "border-b" : ""
+                } md:border-b-0 md:border-r md:last:border-r-0`}
             >
               <div className="text-foreground text-sm font-semibold mb-0.5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 {b.label}
@@ -249,6 +250,23 @@ export function ProductDetailModal({
           ))}
         </div>
       </div>
+
+      {/* Fullscreen Image Preview */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4">
+          <button
+            onClick={() => setIsFullscreen(false)}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            src={activeImage || product.image}
+            alt={product.name}
+            className="max-w-full max-h-full object-contain animate-fade-in"
+          />
+        </div>
+      )}
     </div>
   );
 }

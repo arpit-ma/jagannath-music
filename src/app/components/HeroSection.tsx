@@ -126,7 +126,7 @@ export function HeroSection({ onBrowse, onContact }: HeroSectionProps) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center max-w-7xl mx-auto w-full px-6 lg:px-8 pt-32 pb-24">
+      <div className="relative z-10 flex-1 flex flex-col justify-center max-w-7xl mx-auto w-full px-6 lg:px-8 pt-24 pb-16 lg:pt-32 lg:pb-24">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-4 py-1.5 w-fit mb-10">
           <Tag className="w-3.5 h-3.5 text-[#c9963e] flex-shrink-0" />
@@ -202,7 +202,7 @@ export function HeroSection({ onBrowse, onContact }: HeroSectionProps) {
         </div>
 
         {/* Stats strip */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 mt-20 pt-10 border-t border-white/10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-10 mt-16 md:mt-20 pt-8 md:pt-10 border-t border-white/10">
           {[
             { value: "500+", label: "Products in Store" },
             { value: "15+", label: "Top Brands" },

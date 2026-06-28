@@ -11,13 +11,16 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onViewDetails, onContact }: ProductCardProps) {
   return (
-    <article className="group bg-white rounded-2xl overflow-hidden border border-black/8 hover:border-black/16 hover:shadow-lg transition-all duration-300 flex flex-col">
+    <article 
+      className="group bg-white rounded-2xl overflow-hidden border border-black/8 hover:border-black/16 hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer"
+      onClick={() => onViewDetails(product)}
+    >
       {/* Image */}
       <div className="relative overflow-hidden bg-[#f6f6f6]" style={{ aspectRatio: "4/3" }}>
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute top-3 left-3">
           <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${product.stock > 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
@@ -54,7 +57,10 @@ export function ProductCard({ product, onViewDetails, onContact }: ProductCardPr
         {/* Actions */}
         <div className="flex gap-2 mt-auto">
           <button
-            onClick={() => onViewDetails(product)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails(product);
+            }}
             className="group/details relative flex-1 flex items-center justify-center gap-1.5 px-2 border border-black/15 bg-white/50 backdrop-blur-sm text-[#111] rounded-full py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/10 hover:border-black active:translate-y-0 active:scale-95 cursor-pointer"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
@@ -65,7 +71,10 @@ export function ProductCard({ product, onViewDetails, onContact }: ProductCardPr
           </button>
           
           <button
-            onClick={() => onContact(product)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onContact(product);
+            }}
             className="group/contact relative flex-1 flex items-center justify-center gap-1.5 px-2 bg-[#111] text-white rounded-full py-2.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#c9963e]/40 active:translate-y-0 active:scale-95 cursor-pointer"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >

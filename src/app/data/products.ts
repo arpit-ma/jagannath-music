@@ -23,7 +23,29 @@ export interface Product {
 
 export const products: Product[] = [];
 
-export const featuredCategories: { id: string; name: string; description: string; image: string; category: Category }[] = [];
+export const featuredCategories: { id: string; name: string; description: string; image: string; category: Category }[] = [
+  {
+    id: "fc-1",
+    name: "Guitars & Fretted",
+    description: "Explore our collection of acoustic, electric, and bass guitars from top global brands.",
+    image: "https://images.unsplash.com/photo-1550291652-6ea9114a47b1?w=800&h=600&fit=crop&q=80",
+    category: "Guitar",
+  },
+  {
+    id: "fc-2",
+    name: "Studio Gear",
+    description: "Professional audio interfaces, studio monitors, and recording equipment for your home or pro studio.",
+    image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&h=600&fit=crop&q=80",
+    category: "Studio Monitors",
+  },
+  {
+    id: "fc-3",
+    name: "Indian Classical",
+    description: "Authentic Tablas, Harmoniums, and traditional instruments crafted for perfection.",
+    image: "https://images.unsplash.com/photo-1582236875955-f2d3d02a5c51?w=800&h=600&fit=crop&q=80",
+    category: "Tabla",
+  },
+];
 
 export const brands = ["All Brands", "Yamaha", "Roland", "Casio", "Behringer", "Shure", "JBL", "AKG", "Audio-Technica", "Focusrite", "Other Brands"];
 

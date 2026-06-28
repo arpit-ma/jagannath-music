@@ -35,7 +35,7 @@ export function WhyChoose() {
   ];
 
   return (
-    <section id="why-choose" className="py-24 bg-white border-t border-black/5">
+    <section id="why-choose" className="py-12 md:py-20 lg:py-24 bg-white border-t border-black/5">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
         <div className="max-w-3xl mb-16">
@@ -62,7 +62,7 @@ export function WhyChoose() {
             return (
               <div
                 key={i}
-                className="group p-8 bg-[#f6f6f6] hover:bg-white rounded-3xl border border-transparent hover:border-[#c9963e]/20 hover:shadow-xl hover:shadow-black/5 transition-all duration-300 flex flex-col items-start"
+                className="group p-6 md:p-8 bg-[#f6f6f6] hover:bg-white rounded-3xl border border-transparent hover:border-[#c9963e]/20 hover:shadow-xl hover:shadow-black/5 transition-all duration-300 flex flex-col items-start"
               >
                 <div className="w-12 h-12 bg-white group-hover:bg-[#c9963e] rounded-2xl flex items-center justify-center border border-black/5 group-hover:border-[#c9963e] shadow-sm mb-6 transition-all duration-300">
                   <Icon className="w-6 h-6 text-[#c9963e] group-hover:text-white transition-colors duration-300" />

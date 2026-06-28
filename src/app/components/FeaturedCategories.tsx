@@ -1,17 +1,35 @@
 import { ArrowRight } from "lucide-react";
-import { featuredCategories } from "../data/products";
-import type { Category } from "../data/products";
+import type { Category, Product } from "../data/products";
 
 interface FeaturedCategoriesProps {
+  categories: Category[];
+  products: Product[];
   onSelectCategory: (category: Category) => void;
 }
 
-export function FeaturedCategories({ onSelectCategory }: FeaturedCategoriesProps) {
+export function FeaturedCategories({ categories, products, onSelectCategory }: FeaturedCategoriesProps) {
+  // Dynamically determine the top 3 categories with the most products
+  const topCategories = categories
+    .filter((c) => c !== "All")
+    .map((cat) => {
+      const categoryProducts = products.filter((p) => p.category === cat);
+      return {
+        name: cat,
+        count: categoryProducts.length,
+        image: categoryProducts.length > 0 ? categoryProducts[0].image : "",
+      };
+    })
+    .filter((c) => c.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3);
+
+  if (topCategories.length === 0) return null;
+
   return (
-    <section id="categories" className="py-24 bg-[#f6f6f6]">
+    <section id="categories" className="py-12 md:py-20 lg:py-24 bg-[#f6f6f6]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-16">
           <div className="max-w-2xl">
             <p className="text-[#c9963e] text-xs font-semibold tracking-[0.15em] uppercase mb-3">
               Shop by Category
@@ -34,13 +52,13 @@ export function FeaturedCategories({ onSelectCategory }: FeaturedCategoriesProps
         </div>
 
         {/* Grid Layout: 3 columns on desktop, 2 columns on tablet, 1 column on mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {featuredCategories.map((cat, idx) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+          {topCategories.map((cat, idx) => {
             const isFirst = idx === 0;
             return (
               <button
-                key={cat.id}
-                onClick={() => onSelectCategory(cat.category)}
+                key={cat.name}
+                onClick={() => onSelectCategory(cat.name)}
                 className={`group relative overflow-hidden rounded-3xl text-left w-full shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${
                   isFirst
                     ? "sm:col-span-2 sm:row-span-2 md:col-span-2 md:row-span-2 min-h-[350px] md:min-h-[500px]"
@@ -60,7 +78,7 @@ export function FeaturedCategories({ onSelectCategory }: FeaturedCategoriesProps
                 <div className="absolute inset-0 border border-transparent group-hover:border-[#c9963e]/40 rounded-3xl pointer-events-none transition-all duration-300" />
 
                 {/* Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 flex flex-col justify-end h-full">
+                <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 flex flex-col justify-end h-full">
                   <h3
                     className="text-white mb-2 tracking-tight group-hover:text-[#c9963e] transition-colors duration-300"
                     style={{
@@ -72,7 +90,7 @@ export function FeaturedCategories({ onSelectCategory }: FeaturedCategoriesProps
                     {cat.name}
                   </h3>
                   <p className="text-white/60 text-sm leading-normal max-w-md">
-                    {cat.description}
+                    Explore our collection of {cat.count} {cat.name} {cat.count === 1 ? 'product' : 'products'} and accessories.
                   </p>
                   <div className="flex items-center gap-1.5 mt-4 text-[#c9963e] text-sm font-semibold opacity-90 group-hover:opacity-100 transition-opacity">
                     <span>Explore Products</span>
@@ -82,6 +100,18 @@ export function FeaturedCategories({ onSelectCategory }: FeaturedCategoriesProps
               </button>
             );
           })}
+        </div>
+
+        {/* View All Categories Button */}
+        <div className="flex justify-center">
+          <button
+            onClick={() => onSelectCategory("All")}
+            className="group flex items-center justify-center gap-2 bg-white text-foreground border border-black/10 px-6 py-3.5 rounded-full text-sm font-semibold hover:border-black/30 hover:bg-[#f6f6f6] transition-all w-full sm:w-auto"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+          >
+            View All Categories
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
       </div>
     </section>

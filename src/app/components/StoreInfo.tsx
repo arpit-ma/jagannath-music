@@ -8,7 +8,7 @@ export function StoreInfo() {
   ];
 
   return (
-    <section id="store" className="py-24 bg-[#f6f6f6]">
+    <section id="store" className="py-12 md:py-20 lg:py-24 bg-[#f6f6f6]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12">
@@ -25,7 +25,7 @@ export function StoreInfo() {
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Map placeholder */}
-          <div className="lg:col-span-2 bg-white rounded-3xl overflow-hidden border border-black/8 relative" style={{ minHeight: "360px" }}>
+          <div className="lg:col-span-2 bg-white rounded-3xl overflow-hidden border border-black/8 relative min-h-[250px] md:min-h-[360px]">
             <img
               src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=900&h=500&fit=crop&auto=format"
               alt="City map view"

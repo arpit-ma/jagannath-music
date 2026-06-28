@@ -54,7 +54,7 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
   };
 
   return (
-    <section id="inquiry" className="py-24 bg-[#0a0a0a] relative overflow-hidden">
+    <section id="inquiry" className="py-12 md:py-20 lg:py-24 bg-[#0a0a0a] relative overflow-hidden">
       {/* Subtle texture */}
       <div
         className="absolute inset-0 opacity-5"
@@ -62,7 +62,7 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
       />
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-start">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* Left */}
           <div>
             <p className="text-[#c9963e] text-xs font-semibold tracking-[0.15em] uppercase mb-4">
@@ -120,7 +120,7 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
           </div>
 
           {/* Right — form */}
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6 lg:p-8">
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-5 md:p-8">
             {submitted ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-[#c9963e]/20 rounded-full flex items-center justify-center mx-auto mb-4">

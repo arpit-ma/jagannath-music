@@ -19,10 +19,16 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
   const [selectedPriceIdx, setSelectedPriceIdx] = useState(0);
   const [selectedStockStatus, setSelectedStockStatus] = useState("All");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
     if (initialCategory) setSelectedCategory(initialCategory);
   }, [initialCategory]);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [search, selectedCategory, selectedBrand, selectedPriceIdx, selectedStockStatus]);
 
   const availableBrands = useMemo(() => {
     const brandsSet = new Set(products.map(p => p.brand).filter(Boolean));
@@ -35,11 +41,17 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
     const range = priceRanges[selectedPriceIdx];
     const matchPrice = p.price >= range.min && p.price <= range.max;
     const matchAvail = selectedStockStatus === "All" || (selectedStockStatus === "In Stock" ? p.stock > 0 : p.stock === 0);
+    const searchTerms = search.toLowerCase().trim().split(/\s+/).filter(Boolean);
     const matchSearch =
-      search === "" ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.brand.toLowerCase().includes(search.toLowerCase()) ||
-      p.shortDescription.toLowerCase().includes(search.toLowerCase());
+      searchTerms.length === 0 ||
+      searchTerms.every((term) =>
+        p.name.toLowerCase().includes(term) ||
+        (p.brand && p.brand.toLowerCase().includes(term)) ||
+        (p.category && p.category.toLowerCase().includes(term)) ||
+        (p.shortDescription && p.shortDescription.toLowerCase().includes(term)) ||
+        (p.fullDescription && p.fullDescription.toLowerCase().includes(term)) ||
+        (p.features && p.features.some((f) => f.toLowerCase().includes(term)))
+      );
     return matchCat && matchBrand && matchPrice && matchAvail && matchSearch;
   });
 
@@ -194,10 +206,10 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
   );
 
   return (
-    <section id="catalog" className="py-24 bg-white">
+    <section id="catalog" className="py-12 md:py-20 lg:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-8 md:mb-12">
           <p className="text-[#c9963e] text-xs font-semibold tracking-[0.15em] uppercase mb-3">
             Our Inventory
           </p>
@@ -224,22 +236,40 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
           {/* RIGHT: Search + Mobile Filter Button + Product Grid */}
           <div className="col-span-1 lg:col-span-3 flex flex-col">
             {/* Search and control bar */}
-            <div className="flex gap-3 mb-8">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search products, brands…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#f6f6f6] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground transition-all duration-200"
-                />
+            <div className="flex flex-col md:flex-row gap-3 mb-8">
+              <div className="flex gap-2 flex-1">
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="search"
+                    placeholder="Search products, brands…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                      }
+                    }}
+                    className="w-full pl-11 pr-4 py-3.5 bg-[#f6f6f6] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground transition-all duration-200"
+                  />
+                </div>
+                {/* Explicit Search Button for Mobile */}
+                <button
+                  onClick={() => {
+                    if (document.activeElement instanceof HTMLElement) {
+                      document.activeElement.blur();
+                    }
+                  }}
+                  className="md:hidden bg-foreground text-white px-5 py-3.5 rounded-xl text-sm font-semibold hover:bg-[#c9963e] transition-colors flex-shrink-0"
+                >
+                  Search
+                </button>
               </div>
 
               {/* Mobile Filter Toggle Button */}
               <button
                 onClick={() => setMobileFiltersOpen(true)}
-                className="flex lg:hidden items-center gap-2 px-5 py-3.5 rounded-xl text-sm font-semibold border border-black/10 bg-white hover:bg-[#f6f6f6] transition-all"
+                className="flex lg:hidden items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-semibold border border-black/10 bg-white hover:bg-[#f6f6f6] transition-all w-full md:w-auto flex-shrink-0"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters
@@ -328,16 +358,32 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
 
             {/* Product Grid */}
             {filtered.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filtered.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onViewDetails={onViewDetails}
-                    onContact={onContact}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {filtered.slice(0, visibleCount).map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onViewDetails={onViewDetails}
+                      onContact={onContact}
+                    />
+                  ))}
+                </div>
+                
+                {/* Load More Button */}
+                {visibleCount < filtered.length && (
+                  <div className="flex justify-center mt-10">
+                    <button
+                      onClick={() => setVisibleCount((prev) => prev + 6)}
+                      className="group flex items-center justify-center gap-2 bg-white text-foreground border border-black/10 px-8 py-3.5 rounded-full text-sm font-semibold hover:border-black/30 hover:bg-[#f6f6f6] transition-all w-full sm:w-auto"
+                      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                    >
+                      Load More Products
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-20 bg-[#f6f6f6]/50 rounded-3xl border border-dashed border-black/10">
                 <div className="text-5xl mb-4">🎵</div>
@@ -364,7 +410,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
 
       {/* Slide-out mobile filters drawer */}
       {mobileFiltersOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden select-none">
+        <div className="fixed inset-0 z-[100] lg:hidden select-none">
           {/* Backdrop overlay */}
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
@@ -390,7 +436,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
             </div>
 
             {/* Scrollable Filters */}
-            <div className="flex-1 overflow-y-auto p-6">{FilterContent()}</div>
+            <div className="flex-1 overflow-y-auto p-5">{FilterContent()}</div>
 
             {/* Footer actions */}
             <div className="p-4 border-t border-black/5 flex gap-3">

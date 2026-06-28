@@ -13,6 +13,7 @@ import { WhyChoose } from "./components/WhyChoose";
 import { StoreInfo } from "./components/StoreInfo";
 import { Footer } from "./components/Footer";
 import { WhatsAppWidget } from "./components/WhatsAppWidget";
+import { Skeleton } from "./components/ui/skeleton";
 import type { Product, Category } from "./data/products";
 
 export default function App() {
@@ -158,11 +159,68 @@ export default function App() {
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center text-white">
-        <div className="w-12 h-12 rounded-full border-4 border-white/5 border-t-[#c9963e] animate-spin mb-4" />
-        <p className="text-white/50 text-sm font-semibold tracking-wide animate-pulse" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          Synchronizing Shree Jagannath Music Database...
-        </p>
+      <div className="min-h-screen bg-white">
+        {/* Navbar Skeleton */}
+        <div className="h-16 border-b border-black/5 px-6 lg:px-8 flex items-center justify-between">
+          <Skeleton className="h-8 w-40 bg-black/5" />
+          <div className="hidden md:flex gap-6">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-4 w-20 bg-black/5" />
+            ))}
+          </div>
+        </div>
+
+        {/* Hero Skeleton */}
+        <div className="h-[70vh] bg-black/[0.02] flex flex-col items-center justify-center gap-6 p-8">
+          <Skeleton className="h-12 w-3/4 max-w-2xl bg-black/5" />
+          <Skeleton className="h-16 w-4/5 max-w-3xl bg-black/5" />
+          <div className="flex gap-4 mt-4">
+            <Skeleton className="h-12 w-36 rounded-full bg-black/5" />
+            <Skeleton className="h-12 w-36 rounded-full bg-black/5" />
+          </div>
+        </div>
+
+        {/* Catalog Skeleton */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-24">
+          <div className="mb-12">
+            <Skeleton className="h-4 w-32 mb-3 bg-black/5" />
+            <Skeleton className="h-10 w-64 bg-black/5" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="col-span-1 hidden lg:block space-y-8">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i}>
+                  <Skeleton className="h-4 w-24 mb-4 bg-black/5" />
+                  <div className="space-y-3">
+                    {[1, 2, 3, 4].map((j) => (
+                      <Skeleton key={j} className="h-10 w-full rounded-xl bg-black/5" />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="col-span-1 lg:col-span-3">
+              <div className="flex gap-3 mb-8">
+                <Skeleton className="h-12 w-full rounded-xl bg-black/5" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="bg-white rounded-2xl border border-black/5 p-5 flex flex-col gap-4">
+                    <Skeleton className="aspect-[4/3] w-full rounded-xl bg-black/5" />
+                    <Skeleton className="h-4 w-20 bg-black/5" />
+                    <Skeleton className="h-6 w-full bg-black/5" />
+                    <Skeleton className="h-4 w-full bg-black/5" />
+                    <Skeleton className="h-8 w-24 bg-black/5 mt-auto" />
+                    <div className="flex gap-2 mt-4">
+                      <Skeleton className="h-10 w-full rounded-full bg-black/5" />
+                      <Skeleton className="h-10 w-full rounded-full bg-black/5" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -197,7 +255,11 @@ export default function App() {
         </div>
 
         <div ref={categoriesRef}>
-          <FeaturedCategories onSelectCategory={handleSelectCategory} />
+          <FeaturedCategories 
+            categories={categoriesState} 
+            products={productsState} 
+            onSelectCategory={handleSelectCategory} 
+          />
         </div>
 
         <div ref={storeRef}>
