@@ -2,24 +2,26 @@ import { ArrowRight } from "lucide-react";
 import type { Category, Product } from "../data/products";
 
 interface FeaturedCategoriesProps {
-  categories: Category[];
   products: Product[];
   onSelectCategory: (category: Category) => void;
 }
 
-export function FeaturedCategories({ categories, products, onSelectCategory }: FeaturedCategoriesProps) {
-  // Dynamically determine the top 3 categories with the most products
-  const topCategories = categories
-    .filter((c) => c !== "All")
-    .map((cat) => {
-      const categoryProducts = products.filter((p) => p.category === cat);
-      return {
-        name: cat,
-        count: categoryProducts.length,
-        image: categoryProducts.length > 0 ? categoryProducts[0].image : "",
-      };
-    })
-    .filter((c) => c.count > 0)
+export function FeaturedCategories({ products, onSelectCategory }: FeaturedCategoriesProps) {
+  // Dynamically determine the top 3 categories directly from actual product data
+  const categoryMap = new Map<string, { count: number; image: string }>();
+  
+  products.forEach((p) => {
+    if (!p.category) return;
+    const existing = categoryMap.get(p.category);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      categoryMap.set(p.category, { count: 1, image: p.image || "" });
+    }
+  });
+
+  const topCategories = Array.from(categoryMap.entries())
+    .map(([name, data]) => ({ name, count: data.count, image: data.image }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 3);
 

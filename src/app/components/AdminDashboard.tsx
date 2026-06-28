@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, X, Sparkles, Folder, Tag, AlertCircle, Eye, LogOut, CheckCircle2, Search, RefreshCw, Mail, PhoneCall, MapPin, Calendar, Check, Loader2 } from "lucide-react";
 import type { Product, Category, CategoryItem } from "../data/products";
-import { brands, allCategories } from "../data/products";
+import { brands } from "../data/products";
 import { db, storage } from "../lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -41,30 +41,7 @@ export function AdminDashboard({
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Category>("All");
-  const [syncingCategories, setSyncingCategories] = useState(false);
 
-  const handleSyncCategories = async () => {
-    setSyncingCategories(true);
-    try {
-      const existingNames = new Set(categories.map(c => c.name));
-      const toAdd = allCategories.filter(c => c !== "All" && !existingNames.has(c));
-      
-      if (toAdd.length === 0) {
-        alert("All frontend categories are already in the database.");
-        setSyncingCategories(false);
-        return;
-      }
-      
-      for (const name of toAdd) {
-        await onAddCategory(name);
-      }
-      alert(`Successfully added ${toAdd.length} frontend categories.`);
-    } catch (err: any) {
-      alert("Error syncing categories: " + err.message);
-    } finally {
-      setSyncingCategories(false);
-    }
-  };
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
@@ -433,7 +410,7 @@ export function AdminDashboard({
   });
 
   const totalCatalogValue = products.reduce((acc, p) => acc + p.price, 0);
-  const categoriesCount = new Set(products.map(p => p.category)).size;
+  const categoriesCount = categories.length;
 
   return (
     <div className="min-h-screen bg-[#f6f6f6] text-foreground flex flex-col font-sans select-none">
@@ -568,8 +545,16 @@ export function AdminDashboard({
                 placeholder="Search products by name or brand..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-[#f6f6f6] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground transition-all"
+                className="w-full pl-10 pr-10 py-2.5 bg-[#f6f6f6] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground transition-all"
               />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-black/10 rounded-full text-muted-foreground transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
@@ -895,14 +880,6 @@ export function AdminDashboard({
                 <p className="text-muted-foreground text-sm">Add, edit, or remove product categories.</p>
               </div>
               <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={handleSyncCategories}
-                  disabled={syncingCategories}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-muted-foreground border border-black/10 hover:border-[#c9963e] hover:text-[#c9963e] px-5 py-3 rounded-xl text-sm font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <RefreshCw className={`w-4.5 h-4.5 ${syncingCategories ? 'animate-spin' : ''}`} />
-                  {syncingCategories ? 'Syncing...' : 'Sync Frontend Categories'}
-                </button>
                 <button
                   onClick={() => {
                     setCategoryModalState({

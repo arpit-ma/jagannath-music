@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Phone, MessageCircle, Send, CheckCircle2, Loader2 } from "lucide-react";
 import type { Category } from "../data/products";
 import { db } from "../lib/firebase";
@@ -22,6 +20,13 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Sync defaultProduct prop changes to internal form state
+  useEffect(() => {
+    if (defaultProduct) {
+      setForm((prev) => ({ ...prev, product: defaultProduct }));
+    }
+  }, [defaultProduct]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));

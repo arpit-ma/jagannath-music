@@ -35,6 +35,10 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
     return ["All Brands", ...Array.from(brandsSet).sort()];
   }, [products]);
 
+  // Only show categories from the admin dashboard (Firestore)
+  // Categories not in Firestore won't appear in filters
+  const effectiveCategories = categories;
+
   const filtered = products.filter((p) => {
     const matchCat = selectedCategory === "All" || p.category === selectedCategory;
     const matchBrand = selectedBrand === "All Brands" || p.brand === selectedBrand;
@@ -84,7 +88,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
           Categories
         </h4>
         <div className="space-y-1">
-          {categories.map((cat) => {
+          {effectiveCategories.map((cat) => {
             const count = getCategoryCount(cat);
             const isActive = selectedCategory === cat;
             return (
@@ -250,8 +254,16 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
                         e.currentTarget.blur();
                       }
                     }}
-                    className="w-full pl-11 pr-4 py-3.5 bg-[#f6f6f6] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground transition-all duration-200"
+                    className="w-full pl-11 pr-10 py-3.5 bg-[#f6f6f6] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground transition-all duration-200"
                   />
+                  {search && (
+                    <button
+                      onClick={() => setSearch("")}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-0.5 hover:bg-black/10 rounded-full text-muted-foreground transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
                 {/* Explicit Search Button for Mobile */}
                 <button
@@ -289,7 +301,7 @@ export function ProductCatalog({ products, categories, initialCategory, onViewDe
 
             {/* Selected category pill (Mobile scroll tabs) */}
             <div className="flex lg:hidden gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
-              {categories.map((cat) => (
+              {effectiveCategories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}

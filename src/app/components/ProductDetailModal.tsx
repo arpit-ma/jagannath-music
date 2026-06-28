@@ -37,6 +37,34 @@ export function ProductDetailModal({
     }
   }, [product]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (product) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [product]);
+
+  // Escape key handler
+  useEffect(() => {
+    if (!product) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isFullscreen) {
+          setIsFullscreen(false);
+        } else {
+          onClose();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [product, isFullscreen, onClose]);
+
   if (!product) return null;
 
   const allImages = [product.image, ...(product.images || [])];
@@ -253,17 +281,17 @@ export function ProductDetailModal({
 
       {/* Fullscreen Image Preview */}
       {isFullscreen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white/95 backdrop-blur-md p-4">
           <button
             onClick={() => setIsFullscreen(false)}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 p-3 bg-black/5 hover:bg-black/10 text-foreground rounded-full transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
           <img
             src={activeImage || product.image}
             alt={product.name}
-            className="max-w-full max-h-full object-contain animate-fade-in"
+            className="max-w-full max-h-full object-contain animate-fade-in drop-shadow-xl"
           />
         </div>
       )}

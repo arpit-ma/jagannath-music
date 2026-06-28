@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { MessageCircle, Eye } from "lucide-react";
 import type { Product } from "../data/products";
 
@@ -10,6 +11,8 @@ interface ProductCardProps {
 
 
 export function ProductCard({ product, onViewDetails, onContact }: ProductCardProps) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   return (
     <article 
       className="group bg-white rounded-2xl overflow-hidden border border-black/8 hover:border-black/16 hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer"
@@ -17,10 +20,17 @@ export function ProductCard({ product, onViewDetails, onContact }: ProductCardPr
     >
       {/* Image */}
       <div className="relative overflow-hidden bg-[#f6f6f6]" style={{ aspectRatio: "4/3" }}>
+        {/* Loading Skeleton */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-black/5 animate-pulse" />
+        )}
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+          onLoad={() => setImageLoaded(true)}
+          className={`w-full h-full object-contain p-4 group-hover:scale-105 transition-all duration-500 ${
+            imageLoaded ? "opacity-100" : "opacity-0"
+          }`}
         />
         <div className="absolute top-3 left-3">
           <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${product.stock > 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>

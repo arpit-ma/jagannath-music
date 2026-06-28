@@ -17,6 +17,15 @@ export function Navbar({ onNavigate }: NavbarProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) setMenuOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const links = [
     { label: "Products", section: "catalog" },
     { label: "Why Choose Us", section: "why-choose" },
@@ -24,6 +33,13 @@ export function Navbar({ onNavigate }: NavbarProps) {
     { label: "Store Info", section: "store" },
     { label: "Contact", section: "inquiry" },
   ];
+
+  // Dynamic color classes based on scroll position
+  const navTextColor = scrolled ? "text-foreground/75" : "text-white/80";
+  const navHoverColor = "hover:text-[#c9963e]";
+  const logoTextClass = scrolled
+    ? "bg-gradient-to-r from-neutral-900 to-neutral-700 bg-clip-text text-transparent"
+    : "text-white";
 
   return (
     <header
@@ -48,13 +64,13 @@ export function Navbar({ onNavigate }: NavbarProps) {
           </div>
           <div className="flex flex-col leading-tight select-none">
             <span
-              className="text-foreground font-bold tracking-tight text-[0.98rem] bg-gradient-to-r from-neutral-900 to-neutral-700 bg-clip-text text-transparent group-hover:from-neutral-950 group-hover:to-[#c9963e] transition-all duration-300"
+              className={`font-bold tracking-tight text-[0.98rem] transition-all duration-300 group-hover:text-[#c9963e] ${logoTextClass}`}
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
               Shree Jagannath
             </span>
             <span
-              className="text-[#c9963e] font-extrabold text-[0.62rem] transition-all duration-300 group-hover:letter-widest"
+              className="text-[#c9963e] font-extrabold text-[0.62rem] transition-all duration-300"
               style={{ letterSpacing: "0.22em", textTransform: "uppercase" }}
             >
               Music
@@ -68,7 +84,7 @@ export function Navbar({ onNavigate }: NavbarProps) {
             <button
               key={link.section}
               onClick={() => onNavigate(link.section)}
-              className="relative text-foreground/75 hover:text-[#c9963e] transition-colors text-sm font-semibold tracking-wide py-1.5 group/nav cursor-pointer"
+              className={`relative ${navTextColor} ${navHoverColor} transition-colors text-sm font-semibold tracking-wide py-1.5 group/nav cursor-pointer`}
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
               {link.label}
@@ -81,17 +97,17 @@ export function Navbar({ onNavigate }: NavbarProps) {
         <div className="hidden md:flex items-center gap-5">
           <a
             href="tel:+917974024513"
-            className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-[#c9963e] transition-colors group/phone"
+            className={`flex items-center gap-2 text-sm font-semibold ${scrolled ? "text-muted-foreground" : "text-white/70"} hover:text-[#c9963e] transition-colors group/phone`}
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
-            <div className="w-7 h-7 rounded-full bg-black/5 group-hover/phone:bg-[#c9963e]/10 flex items-center justify-center transition-colors">
-              <Phone className="w-3.5 h-3.5 text-muted-foreground group-hover/phone:text-[#c9963e]" />
+            <div className={`w-7 h-7 rounded-full ${scrolled ? "bg-black/5" : "bg-white/10"} group-hover/phone:bg-[#c9963e]/10 flex items-center justify-center transition-colors`}>
+              <Phone className={`w-3.5 h-3.5 ${scrolled ? "text-muted-foreground" : "text-white/70"} group-hover/phone:text-[#c9963e]`} />
             </div>
             +91 79740 24513
           </a>
           <button
             onClick={() => onNavigate("inquiry")}
-            className="bg-[#1a1a1a] hover:bg-[#c9963e] text-white px-5.5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-lg hover:shadow-[#c9963e]/15 transform active:scale-95 cursor-pointer"
+            className={`${scrolled ? "bg-[#1a1a1a]" : "bg-white/15 backdrop-blur-sm border border-white/20"} hover:bg-[#c9963e] text-white px-5.5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-lg hover:shadow-[#c9963e]/15 transform active:scale-95 cursor-pointer`}
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
             Get Quote
@@ -100,13 +116,21 @@ export function Navbar({ onNavigate }: NavbarProps) {
 
         {/* Mobile menu toggle */}
         <button
-          className="md:hidden p-2 -mr-2 text-foreground"
+          className={`md:hidden p-2 -mr-2 ${scrolled ? "text-foreground" : "text-white"}`}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
           {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
+
+      {/* Mobile menu backdrop (click outside to close) */}
+      {menuOpen && (
+        <div
+          className="md:hidden fixed inset-0 top-[72px] bg-black/20 z-[-1]"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
 
       {/* Mobile menu */}
       <div

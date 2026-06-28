@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { collection, getDocs, doc, addDoc, updateDoc, deleteDoc, writeBatch } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "./lib/firebase";
 import { Navbar } from "./components/Navbar";
 import { HeroSection } from "./components/HeroSection";
@@ -57,22 +57,7 @@ export default function App() {
           catList.push(docSnap.data().name);
         });
 
-        if (catList.length === 0) {
-          const { allCategories: defaultCategories } = await import("./data/products");
-          const batch = writeBatch(db);
-          
-          // Don't save "All" as a category in the DB since it's a structural filter element
-          const filteredCategories = defaultCategories.filter(c => c !== "All");
-          filteredCategories.forEach((catName) => {
-            const docRef = doc(collection(db, "categories"));
-            batch.set(docRef, { name: catName });
-          });
-          await batch.commit();
-
-          setCategoriesState(["All", ...filteredCategories]);
-        } else {
-          setCategoriesState(["All", ...catList]);
-        }
+        setCategoriesState(["All", ...catList]);
 
       } catch (err) {
         console.error("Error loading data from Firestore:", err);
@@ -256,7 +241,6 @@ export default function App() {
 
         <div ref={categoriesRef}>
           <FeaturedCategories 
-            categories={categoriesState} 
             products={productsState} 
             onSelectCategory={handleSelectCategory} 
           />
