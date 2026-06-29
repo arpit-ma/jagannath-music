@@ -1,20 +1,32 @@
 import { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, X, Sparkles, Folder, Tag, AlertCircle, Eye, LogOut, CheckCircle2, Search, RefreshCw, Mail, PhoneCall, MapPin, Calendar, Check, Loader2 } from "lucide-react";
+import { Plus, Edit2, Trash2, X, Sparkles, Folder, Tag, AlertCircle, Eye, LogOut, CheckCircle2, Search, RefreshCw, Mail, PhoneCall, MapPin, Calendar, Check, Loader2, Users, Shield, UserPlus, UserMinus, Key } from "lucide-react";
 import type { Product, Category, CategoryItem } from "../data/products";
 import { brands } from "../data/products";
 import { db, storage } from "../lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
+export interface AdminUser {
+  id: string;
+  email: string;
+  createdAt?: any;
+  createdBy?: string;
+}
+
 interface AdminDashboardProps {
   products: Product[];
   categories: CategoryItem[];
+  admins: AdminUser[];
+  currentUserEmail: string;
   onAddProduct: (product: Omit<Product, "id">) => Promise<void>;
   onUpdateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
   onDeleteProduct: (id: string) => Promise<void>;
   onAddCategory: (name: string) => Promise<void>;
   onUpdateCategory: (id: string, name: string) => Promise<void>;
   onDeleteCategory: (id: string) => Promise<void>;
+  onAddAdmin: (email: string, password: string) => Promise<void>;
+  onRemoveAdmin: (id: string) => Promise<void>;
+  onRefreshAdmins: () => Promise<void>;
   onBackToStore: () => void;
 }
 
@@ -23,15 +35,89 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1510915361894-db8b60106
 export function AdminDashboard({
   products,
   categories,
+  admins,
+  currentUserEmail,
   onAddProduct,
   onUpdateProduct,
   onDeleteProduct,
   onAddCategory,
   onUpdateCategory,
   onDeleteCategory,
+  onAddAdmin,
+  onRemoveAdmin,
+  onRefreshAdmins,
   onBackToStore
 }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<"products" | "inquiries" | "categories">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "inquiries" | "categories" | "users">("products");
+
+  // User Management State
+  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [newAdminPassword, setNewAdminPassword] = useState("");
+  const [newAdminConfirmPassword, setNewAdminConfirmPassword] = useState("");
+  const [addAdminLoading, setAddAdminLoading] = useState(false);
+  const [addAdminError, setAddAdminError] = useState("");
+  const [addAdminSuccess, setAddAdminSuccess] = useState("");
+  const [deletingAdminId, setDeletingAdminId] = useState<string | null>(null);
+  const [deleteAdminLoading, setDeleteAdminLoading] = useState(false);
+  const [loadingAdmins, setLoadingAdmins] = useState(false);
+
+  const handleAddAdminSubmit = async () => {
+    setAddAdminError("");
+    setAddAdminSuccess("");
+
+    if (!newAdminEmail.trim() || !newAdminPassword) {
+      setAddAdminError("Please fill in all fields.");
+      return;
+    }
+    if (newAdminPassword.length < 6) {
+      setAddAdminError("Password must be at least 6 characters.");
+      return;
+    }
+    if (newAdminPassword !== newAdminConfirmPassword) {
+      setAddAdminError("Passwords do not match.");
+      return;
+    }
+
+    setAddAdminLoading(true);
+    try {
+      await onAddAdmin(newAdminEmail.trim(), newAdminPassword);
+      setAddAdminSuccess(`Admin "${newAdminEmail.trim()}" created successfully!`);
+      setNewAdminEmail("");
+      setNewAdminPassword("");
+      setNewAdminConfirmPassword("");
+      setTimeout(() => {
+        setShowAddAdminModal(false);
+        setAddAdminSuccess("");
+      }, 1500);
+    } catch (err: any) {
+      setAddAdminError(err.message || "Failed to create admin.");
+    } finally {
+      setAddAdminLoading(false);
+    }
+  };
+
+  const handleConfirmDeleteAdmin = async () => {
+    if (!deletingAdminId) return;
+    setDeleteAdminLoading(true);
+    try {
+      await onRemoveAdmin(deletingAdminId);
+      setDeletingAdminId(null);
+    } catch (err: any) {
+      alert(err.message || "Failed to remove admin.");
+    } finally {
+      setDeleteAdminLoading(false);
+    }
+  };
+
+  const handleRefreshAdmins = async () => {
+    setLoadingAdmins(true);
+    try {
+      await onRefreshAdmins();
+    } finally {
+      setLoadingAdmins(false);
+    }
+  };
   
   // Inquiries State
   const [inquiries, setInquiries] = useState<any[]>([]);
@@ -465,6 +551,14 @@ export function AdminDashboard({
           >
             Category Management
           </button>
+          <button
+            onClick={() => setActiveTab("users")}
+            className={`py-3 border-b-2 transition-all cursor-pointer ${
+              activeTab === "users" ? "border-[#c9963e] text-[#c9963e]" : "border-transparent text-white/60 hover:text-white"
+            }`}
+          >
+            User Management
+          </button>
         </div>
       </div>
 
@@ -870,7 +964,7 @@ export function AdminDashboard({
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === "categories" ? (
           <div className="flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
@@ -945,6 +1039,147 @@ export function AdminDashboard({
                 </div>
                 );
               })}
+            </div>
+          </div>
+        ) : (
+          /* ===== USER MANAGEMENT TAB ===== */
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Roboto', sans-serif" }}>
+                  User Management
+                </h2>
+                <p className="text-muted-foreground text-sm">Add or remove administrator accounts for this store.</p>
+              </div>
+              <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={handleRefreshAdmins}
+                  className="flex items-center gap-2 border border-black/10 hover:border-black/25 bg-white text-foreground px-4 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer shadow-sm"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loadingAdmins ? "animate-spin" : ""}`} />
+                  Refresh
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAddAdminModal(true);
+                    setNewAdminEmail("");
+                    setNewAdminPassword("");
+                    setNewAdminConfirmPassword("");
+                    setAddAdminError("");
+                    setAddAdminSuccess("");
+                  }}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#c9963e] text-white hover:bg-[#b8852e] px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-[#c9963e]/10 transition-all cursor-pointer"
+                >
+                  <UserPlus className="w-4.5 h-4.5" />
+                  Add Admin
+                </button>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="bg-white p-6 rounded-3xl border border-black/5 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 bg-[#c9963e]/10 rounded-2xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-[#c9963e]" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-foreground">{admins.length}</div>
+                  <div className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Total Admins</div>
+                </div>
+              </div>
+              <div className="bg-white p-6 rounded-3xl border border-black/5 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
+                  <Shield className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-foreground truncate max-w-[200px]">{currentUserEmail}</div>
+                  <div className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Logged In As</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Admin Users Grid */}
+            <div className="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
+              <div className="p-5 border-b border-black/5 bg-white">
+                <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">Registered Administrators</h3>
+              </div>
+
+              {admins.length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="text-4xl mb-4">👤</div>
+                  <h3 className="font-bold text-foreground text-base mb-1" style={{ fontFamily: "'Roboto', sans-serif" }}>No Admin Records</h3>
+                  <p className="text-muted-foreground text-sm font-medium">Add your first administrator using the button above.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-black/5">
+                  {admins.map((admin) => {
+                    const isCurrentUser = admin.email === currentUserEmail;
+                    const dateStr = admin.createdAt?.seconds
+                      ? new Date(admin.createdAt.seconds * 1000).toLocaleString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })
+                      : "Unknown";
+
+                    return (
+                      <div key={admin.id} className="flex items-center justify-between p-5 hover:bg-[#fcfcfc] transition-colors">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+                            isCurrentUser ? "bg-[#c9963e]/15 border border-[#c9963e]/30" : "bg-black/5"
+                          }`}>
+                            <Shield className={`w-5 h-5 ${isCurrentUser ? "text-[#c9963e]" : "text-muted-foreground"}`} />
+                          </div>
+                          <div className="min-w-0 flex flex-col">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-foreground text-sm truncate">{admin.email}</span>
+                              {isCurrentUser && (
+                                <span className="text-[9px] font-bold uppercase tracking-wider bg-[#c9963e]/10 text-[#c9963e] px-2 py-0.5 rounded-full border border-[#c9963e]/20 flex-shrink-0">You</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 mt-0.5">
+                              <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                Added {dateStr}
+                              </span>
+                              {admin.createdBy && (
+                                <span className="text-xs text-muted-foreground font-medium">by {admin.createdBy}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {!isCurrentUser && (
+                            <button
+                              onClick={() => setDeletingAdminId(admin.id)}
+                              className="flex items-center gap-1.5 border border-red-100 hover:border-red-200 text-muted-foreground hover:text-red-600 hover:bg-red-50 px-3 py-2 rounded-xl transition-all cursor-pointer text-xs font-semibold"
+                              title="Remove Admin"
+                            >
+                              <UserMinus className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">Remove</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Info note */}
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-amber-800 text-xs font-semibold mb-0.5">Important Notice</p>
+                <p className="text-amber-700 text-xs leading-relaxed">
+                  Adding a new admin creates a Firebase Authentication account and registers them in the admin list. 
+                  Removing an admin deletes their record from the database. You cannot remove your own account.
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -1310,6 +1545,142 @@ export function AdminDashboard({
                 ) : (
                   categoryModalState.mode === "delete" ? "Delete" : "Save"
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Admin Modal */}
+      {showAddAdminModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl flex flex-col gap-5 transform scale-100 transition-all text-sm text-foreground select-text">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#c9963e]/15 rounded-2xl flex items-center justify-center">
+                  <UserPlus className="w-5 h-5 text-[#c9963e]" />
+                </div>
+                <h3 className="font-bold text-foreground text-base" style={{ fontFamily: "'Roboto', sans-serif" }}>Add New Admin</h3>
+              </div>
+              <button
+                onClick={() => setShowAddAdminModal(false)}
+                className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg bg-[#f6f6f6] transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {addAdminError && (
+              <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-2xl text-xs font-medium leading-relaxed">
+                {addAdminError}
+              </div>
+            )}
+
+            {addAdminSuccess && (
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-600 p-3 rounded-2xl text-xs font-medium leading-relaxed flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4" />
+                {addAdminSuccess}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Email Address *</label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="email"
+                    required
+                    placeholder="newadmin@example.com"
+                    value={newAdminEmail}
+                    onChange={(e) => setNewAdminEmail(e.target.value)}
+                    className="w-full bg-[#f6f6f6] border border-transparent rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Password *</label>
+                <div className="relative">
+                  <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={newAdminPassword}
+                    onChange={(e) => setNewAdminPassword(e.target.value)}
+                    className="w-full bg-[#f6f6f6] border border-transparent rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Confirm Password *</label>
+                <div className="relative">
+                  <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={newAdminConfirmPassword}
+                    onChange={(e) => setNewAdminConfirmPassword(e.target.value)}
+                    className="w-full bg-[#f6f6f6] border border-transparent rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                disabled={addAdminLoading}
+                onClick={() => setShowAddAdminModal(false)}
+                className="flex-1 bg-[#f6f6f6] hover:bg-[#eeeeee] text-foreground text-xs font-bold py-3 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={addAdminLoading}
+                onClick={handleAddAdminSubmit}
+                className="flex-1 bg-[#c9963e] hover:bg-[#b8852e] text-white text-xs font-bold py-3 rounded-xl transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {addAdminLoading ? (
+                  <span className="flex items-center gap-2"><RefreshCw className="w-4 h-4 animate-spin" /> Creating...</span>
+                ) : (
+                  <><UserPlus className="w-4 h-4" /> Create Admin</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Admin Confirmation Modal */}
+      {deletingAdminId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col gap-4 text-center transform scale-100 transition-all">
+            <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto">
+              <UserMinus className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-bold text-foreground text-base mb-1" style={{ fontFamily: "'Roboto', sans-serif" }}>
+                Remove Administrator
+              </h3>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Are you sure you want to remove this administrator? They will lose access to the management portal. This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                disabled={deleteAdminLoading}
+                onClick={() => setDeletingAdminId(null)}
+                className="flex-1 bg-[#f6f6f6] hover:bg-[#eeeeee] text-foreground text-xs font-bold py-3 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={deleteAdminLoading}
+                onClick={handleConfirmDeleteAdmin}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-3 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+              >
+                {deleteAdminLoading ? "Removing..." : "Remove Admin"}
               </button>
             </div>
           </div>

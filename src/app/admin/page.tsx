@@ -6,7 +6,8 @@ import {
   createUserWithEmailAndPassword, 
   onAuthStateChanged, 
   signOut,
-  User 
+  User,
+  getAuth 
 } from "firebase/auth";
 import { 
   collection, 
@@ -17,10 +18,15 @@ import {
   deleteDoc, 
   writeBatch,
   getDoc,
-  setDoc 
+  setDoc,
+  serverTimestamp,
+  query,
+  where 
 } from "firebase/firestore";
-import { auth, db } from "../lib/firebase";
+import { initializeApp, deleteApp } from "firebase/app";
+import { auth, db, app } from "../lib/firebase";
 import { AdminDashboard } from "../components/AdminDashboard";
+import type { AdminUser } from "../components/AdminDashboard";
 import type { Product, CategoryItem } from "../data/products";
 import { Lock, Mail, Key, Sparkles, UserPlus, LogIn, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -45,6 +51,7 @@ export default function AdminPage() {
   // Dashboard state & CRUD
   const [productsState, setProductsState] = useState<Product[]>([]);
   const [categoriesState, setCategoriesState] = useState<CategoryItem[]>([]);
+  const [adminsState, setAdminsState] = useState<AdminUser[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(false);
 
   // Listen to Auth State
@@ -54,6 +61,9 @@ export default function AdminPage() {
       setLoading(false);
       if (currentUser) {
         fetchDashboardData();
+        fetchAdmins();
+        // Auto-register current user as admin if not already registered
+        registerCurrentAdmin(currentUser);
       }
     });
     return () => unsubscribe();
@@ -99,6 +109,105 @@ export default function AdminPage() {
       console.error("Error loading dashboard data:", err);
     } finally {
       setDashboardLoading(false);
+    }
+  };
+
+  // Auto-register current user as admin if not already in the admins collection
+  const registerCurrentAdmin = async (currentUser: User) => {
+    try {
+      const adminsRef = collection(db, "admins");
+      const q = query(adminsRef, where("email", "==", currentUser.email));
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) {
+        await addDoc(adminsRef, {
+          email: currentUser.email,
+          uid: currentUser.uid,
+          createdAt: serverTimestamp(),
+          createdBy: "self-registered"
+        });
+        // Refresh the admins list
+        await fetchAdmins();
+      }
+    } catch (err) {
+      console.error("Error auto-registering admin:", err);
+    }
+  };
+
+  // Fetch admins from Firestore
+  const fetchAdmins = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, "admins"));
+      const adminList: AdminUser[] = [];
+      snapshot.forEach((docSnap) => {
+        adminList.push({ id: docSnap.id, ...docSnap.data() } as AdminUser);
+      });
+      setAdminsState(adminList);
+    } catch (err) {
+      console.error("Error fetching admins:", err);
+    }
+  };
+
+  // Add a new admin
+  const handleAddAdmin = async (email: string, password: string) => {
+    try {
+      // Check if admin with this email already exists in Firestore
+      const adminsRef = collection(db, "admins");
+      const q = query(adminsRef, where("email", "==", email));
+      const existingSnapshot = await getDocs(q);
+      if (!existingSnapshot.empty) {
+        throw new Error("An admin with this email already exists.");
+      }
+
+      // Create a secondary Firebase app to create the user without signing out the current admin
+      const secondaryApp = initializeApp(app.options, "SecondaryApp");
+      const secondaryAuth = getAuth(secondaryApp);
+      
+      try {
+        const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+        const newUid = userCredential.user.uid;
+
+        // Add to admins collection in Firestore
+        await addDoc(adminsRef, {
+          email: email,
+          uid: newUid,
+          createdAt: serverTimestamp(),
+          createdBy: user?.email || "unknown"
+        });
+
+        // Sign out from secondary app and delete it
+        await signOut(secondaryAuth);
+        await deleteApp(secondaryApp);
+
+        // Refresh admins list
+        await fetchAdmins();
+      } catch (innerErr) {
+        // Clean up secondary app on failure
+        try {
+          await signOut(secondaryAuth);
+          await deleteApp(secondaryApp);
+        } catch (_) {}
+        throw innerErr;
+      }
+    } catch (err: any) {
+      console.error("Error adding admin:", err);
+      throw err;
+    }
+  };
+
+  // Remove an admin
+  const handleRemoveAdmin = async (adminId: string) => {
+    try {
+      const adminToRemove = adminsState.find(a => a.id === adminId);
+      if (adminToRemove && adminToRemove.email === user?.email) {
+        throw new Error("You cannot remove your own admin account.");
+      }
+      
+      const docRef = doc(db, "admins", adminId);
+      await deleteDoc(docRef);
+      setAdminsState(prev => prev.filter(a => a.id !== adminId));
+    } catch (err: any) {
+      console.error("Error removing admin:", err);
+      throw err;
     }
   };
 
@@ -266,12 +375,17 @@ export default function AdminPage() {
       <AdminDashboard
         products={productsState}
         categories={categoriesState}
+        admins={adminsState}
+        currentUserEmail={user.email || ""}
         onAddProduct={handleAddProduct}
         onUpdateProduct={handleUpdateProduct}
         onDeleteProduct={handleDeleteProduct}
         onAddCategory={handleAddCategory}
         onUpdateCategory={handleUpdateCategory}
         onDeleteCategory={handleDeleteCategory}
+        onAddAdmin={handleAddAdmin}
+        onRemoveAdmin={handleRemoveAdmin}
+        onRefreshAdmins={fetchAdmins}
         onBackToStore={handleLogout}
       />
     );
