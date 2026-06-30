@@ -27,7 +27,7 @@ import { initializeApp, deleteApp } from "firebase/app";
 import { auth, db, app } from "../lib/firebase";
 import { AdminDashboard } from "../components/AdminDashboard";
 import type { AdminUser } from "../components/AdminDashboard";
-import type { Product, CategoryItem } from "../data/products";
+import type { Product, CategoryItem, BrandItem } from "../data/products";
 import { Lock, Mail, Key, Sparkles, UserPlus, LogIn, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -51,6 +51,7 @@ export default function AdminPage() {
   // Dashboard state & CRUD
   const [productsState, setProductsState] = useState<Product[]>([]);
   const [categoriesState, setCategoriesState] = useState<CategoryItem[]>([]);
+  const [brandsState, setBrandsState] = useState<BrandItem[]>([]);
   const [adminsState, setAdminsState] = useState<AdminUser[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(false);
 
@@ -105,6 +106,26 @@ export default function AdminPage() {
         cList.push({ id: docSnap.id, name: docSnap.data().name });
       });
       setCategoriesState(cList);
+
+      const bSnapshot = await getDocs(collection(db, "brands"));
+      const bList: BrandItem[] = [];
+      
+      if (bSnapshot.empty) {
+        // Migrate existing brands
+        const hardcodedBrands = ["Yamaha", "Roland", "Casio", "Behringer", "Shure", "JBL", "AKG", "Audio-Technica", "Focusrite"];
+        const productBrands = pList.map(p => p.brand).filter(b => b && b !== "All Brands" && b !== "Other Brands");
+        const uniqueBrands = Array.from(new Set([...hardcodedBrands, ...productBrands]));
+        
+        for (const brandName of uniqueBrands) {
+           const docRef = await addDoc(collection(db, "brands"), { name: brandName });
+           bList.push({ id: docRef.id, name: brandName });
+        }
+      } else {
+        bSnapshot.forEach((docSnap) => {
+          bList.push({ id: docSnap.id, name: docSnap.data().name });
+        });
+      }
+      setBrandsState(bList);
     } catch (err) {
       console.error("Error loading dashboard data:", err);
     } finally {
@@ -292,6 +313,50 @@ export default function AdminPage() {
     }
   };
 
+  // Brand CRUD
+  const handleAddBrand = async (name: string) => {
+    try {
+      const docRef = await addDoc(collection(db, "brands"), { name });
+      const newBrand: BrandItem = { id: docRef.id, name };
+      setBrandsState((prev) => [...prev, newBrand]);
+    } catch (err) {
+      console.error("Error adding brand:", err);
+      throw err;
+    }
+  };
+
+  const handleUpdateBrand = async (id: string, newName: string) => {
+    try {
+      const docRef = doc(db, "brands", id);
+      await updateDoc(docRef, { name: newName });
+      setBrandsState((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, name: newName } : b))
+      );
+    } catch (err) {
+      console.error("Error updating brand:", err);
+      throw err;
+    }
+  };
+
+  const handleDeleteBrand = async (id: string) => {
+    try {
+      const brandToDelete = brandsState.find(b => b.id === id);
+      if (brandToDelete) {
+        const inUse = productsState.some(p => p.brand === brandToDelete.name);
+        if (inUse) {
+          throw new Error(`Cannot delete brand "${brandToDelete.name}" because it is currently assigned to one or more products.`);
+        }
+      }
+
+      const docRef = doc(db, "brands", id);
+      await deleteDoc(docRef);
+      setBrandsState((prev) => prev.filter((b) => b.id !== id));
+    } catch (err) {
+      console.error("Error deleting brand:", err);
+      throw err;
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -375,6 +440,7 @@ export default function AdminPage() {
       <AdminDashboard
         products={productsState}
         categories={categoriesState}
+        brands={brandsState}
         admins={adminsState}
         currentUserEmail={user.email || ""}
         onAddProduct={handleAddProduct}
@@ -383,6 +449,9 @@ export default function AdminPage() {
         onAddCategory={handleAddCategory}
         onUpdateCategory={handleUpdateCategory}
         onDeleteCategory={handleDeleteCategory}
+        onAddBrand={handleAddBrand}
+        onUpdateBrand={handleUpdateBrand}
+        onDeleteBrand={handleDeleteBrand}
         onAddAdmin={handleAddAdmin}
         onRemoveAdmin={handleRemoveAdmin}
         onRefreshAdmins={fetchAdmins}

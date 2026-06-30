@@ -13,17 +13,46 @@ interface ProductCatalogProps {
 }
 
 export function ProductCatalog({ products, categories, initialCategory, onViewDetails, onContact }: ProductCatalogProps) {
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<Category>(initialCategory ?? "All");
-  const [selectedBrand, setSelectedBrand] = useState("All Brands");
-  const [selectedPriceIdx, setSelectedPriceIdx] = useState(0);
-  const [selectedStockStatus, setSelectedStockStatus] = useState("All");
+  const [search, setSearch] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("store_search") || "";
+    return "";
+  });
+  const [selectedCategory, setSelectedCategory] = useState<Category>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("store_category");
+      if (saved) return saved as Category;
+    }
+    return initialCategory ?? "All";
+  });
+  const [selectedBrand, setSelectedBrand] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("store_brand") || "All Brands";
+    return "All Brands";
+  });
+  const [selectedPriceIdx, setSelectedPriceIdx] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("store_priceIdx");
+      if (saved) return parseInt(saved, 10) || 0;
+    }
+    return 0;
+  });
+  const [selectedStockStatus, setSelectedStockStatus] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("store_stockStatus") || "All";
+    return "All";
+  });
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
     if (initialCategory) setSelectedCategory(initialCategory);
   }, [initialCategory]);
+
+  useEffect(() => {
+    localStorage.setItem("store_search", search);
+    localStorage.setItem("store_category", selectedCategory);
+    localStorage.setItem("store_brand", selectedBrand);
+    localStorage.setItem("store_priceIdx", selectedPriceIdx.toString());
+    localStorage.setItem("store_stockStatus", selectedStockStatus);
+  }, [search, selectedCategory, selectedBrand, selectedPriceIdx, selectedStockStatus]);
 
   // Reset visible count when filters change
   useEffect(() => {

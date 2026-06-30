@@ -5,6 +5,11 @@ export interface CategoryItem {
   name: string;
 }
 
+export interface BrandItem {
+  id: string;
+  name: string;
+}
+
 
 export interface Product {
   id: string;

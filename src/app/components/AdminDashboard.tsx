@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, X, Sparkles, Folder, Tag, AlertCircle, Eye, LogOut, CheckCircle2, Search, RefreshCw, Mail, PhoneCall, MapPin, Calendar, Check, Loader2, Users, Shield, UserPlus, UserMinus, Key } from "lucide-react";
-import type { Product, Category, CategoryItem } from "../data/products";
-import { brands } from "../data/products";
+import type { Product, Category, CategoryItem, BrandItem } from "../data/products";
 import { db, storage } from "../lib/firebase";
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -16,6 +15,7 @@ export interface AdminUser {
 interface AdminDashboardProps {
   products: Product[];
   categories: CategoryItem[];
+  brands: BrandItem[];
   admins: AdminUser[];
   currentUserEmail: string;
   onAddProduct: (product: Omit<Product, "id">) => Promise<void>;
@@ -24,6 +24,9 @@ interface AdminDashboardProps {
   onAddCategory: (name: string) => Promise<void>;
   onUpdateCategory: (id: string, name: string) => Promise<void>;
   onDeleteCategory: (id: string) => Promise<void>;
+  onAddBrand: (name: string) => Promise<void>;
+  onUpdateBrand: (id: string, name: string) => Promise<void>;
+  onDeleteBrand: (id: string) => Promise<void>;
   onAddAdmin: (email: string, password: string) => Promise<void>;
   onRemoveAdmin: (id: string) => Promise<void>;
   onRefreshAdmins: () => Promise<void>;
@@ -35,6 +38,7 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1510915361894-db8b60106
 export function AdminDashboard({
   products,
   categories,
+  brands,
   admins,
   currentUserEmail,
   onAddProduct,
@@ -43,12 +47,27 @@ export function AdminDashboard({
   onAddCategory,
   onUpdateCategory,
   onDeleteCategory,
+  onAddBrand,
+  onUpdateBrand,
+  onDeleteBrand,
   onAddAdmin,
   onRemoveAdmin,
   onRefreshAdmins,
   onBackToStore
 }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<"products" | "inquiries" | "categories" | "users">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "inquiries" | "categories" | "brands" | "users">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("adminActiveTab");
+      if (saved && ["products", "inquiries", "categories", "brands", "users"].includes(saved)) {
+        return saved as any;
+      }
+    }
+    return "products";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("adminActiveTab", activeTab);
+  }, [activeTab]);
 
   // User Management State
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
@@ -172,6 +191,46 @@ export function AdminDashboard({
       setCategoryModalState(prev => ({ ...prev, isOpen: false, loading: false }));
     } catch (err: any) {
       setCategoryModalState(prev => ({ ...prev, error: err.message, loading: false }));
+    }
+  };
+
+  const [brandModalState, setBrandModalState] = useState<{
+    isOpen: boolean;
+    mode: "add" | "edit" | "delete";
+    brand: BrandItem | null;
+    inputValue: string;
+    error: string;
+    loading: boolean;
+  }>({
+    isOpen: false,
+    mode: "add",
+    brand: null,
+    inputValue: "",
+    error: "",
+    loading: false
+  });
+
+  const handleBrandModalSubmit = async () => {
+    const { mode, brand, inputValue } = brandModalState;
+    setBrandModalState(prev => ({ ...prev, error: "", loading: true }));
+
+    try {
+      if (mode === "add") {
+        if (!inputValue.trim()) throw new Error("Brand name is required.");
+        await onAddBrand(inputValue.trim());
+      } else if (mode === "edit" && brand) {
+        if (!inputValue.trim()) throw new Error("Brand name is required.");
+        if (inputValue.trim() === brand.name) {
+          setBrandModalState(prev => ({ ...prev, isOpen: false, loading: false }));
+          return;
+        }
+        await onUpdateBrand(brand.id, inputValue.trim());
+      } else if (mode === "delete" && brand) {
+        await onDeleteBrand(brand.id);
+      }
+      setBrandModalState(prev => ({ ...prev, isOpen: false, loading: false }));
+    } catch (err: any) {
+      setBrandModalState(prev => ({ ...prev, error: err.message, loading: false }));
     }
   };
 
@@ -461,6 +520,11 @@ export function AdminDashboard({
       if (editingProduct) {
         await onUpdateProduct(editingProduct.id, payload);
       } else {
+        if (!form.brand) {
+          alert("Please select a brand.");
+          setSaving(false);
+          return;
+        }
         await onAddProduct(payload);
       }
 
@@ -550,6 +614,14 @@ export function AdminDashboard({
             }`}
           >
             Category Management
+          </button>
+          <button
+            onClick={() => setActiveTab("brands")}
+            className={`py-3 border-b-2 transition-all cursor-pointer ${
+              activeTab === "brands" ? "border-[#c9963e] text-[#c9963e]" : "border-transparent text-white/60 hover:text-white"
+            }`}
+          >
+            Brand Management
           </button>
           <button
             onClick={() => setActiveTab("users")}
@@ -1041,6 +1113,83 @@ export function AdminDashboard({
               })}
             </div>
           </div>
+        ) : activeTab === "brands" ? (
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Roboto', sans-serif" }}>
+                  Brand Management
+                </h2>
+                <p className="text-muted-foreground text-sm">Add, edit, or remove product brands.</p>
+              </div>
+              <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => {
+                    setBrandModalState({
+                      isOpen: true,
+                      mode: "add",
+                      brand: null,
+                      inputValue: "",
+                      error: "",
+                      loading: false
+                    });
+                  }}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#c9963e] text-white hover:bg-[#b8852e] px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-[#c9963e]/10 transition-all cursor-pointer"
+                >
+                  <Plus className="w-4.5 h-4.5" />
+                  Add Brand
+                </button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {brands.map((brand) => {
+                const productCount = products.filter(p => p.brand === brand.name).length;
+                return (
+                <div key={brand.id} className="bg-white rounded-3xl border border-black/5 p-6 shadow-sm flex items-center justify-between gap-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-bold text-foreground text-lg">{brand.name}</span>
+                    <span className="text-muted-foreground text-sm font-medium bg-[#f6f6f6] px-2 py-0.5 rounded-md w-fit">
+                      {productCount} product{productCount !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setBrandModalState({
+                          isOpen: true,
+                          mode: "edit",
+                          brand: brand,
+                          inputValue: brand.name,
+                          error: "",
+                          loading: false
+                        });
+                      }}
+                      className="p-2 border border-black/10 hover:border-[#c9963e]/30 text-muted-foreground hover:text-[#c9963e] hover:bg-[#c9963e]/5 rounded-xl transition-all cursor-pointer"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setBrandModalState({
+                          isOpen: true,
+                          mode: "delete",
+                          brand: brand,
+                          inputValue: "",
+                          error: "",
+                          loading: false
+                        });
+                      }}
+                      className="p-2 border border-red-100 hover:border-red-200 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                );
+              })}
+            </div>
+          </div>
         ) : (
           /* ===== USER MANAGEMENT TAB ===== */
           <div className="flex flex-col gap-6">
@@ -1222,14 +1371,16 @@ export function AdminDashboard({
                 {/* Brand */}
                 <div>
                   <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Brand *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Yamaha, Casio"
+                  <select
                     value={form.brand}
                     onChange={(e) => setForm(prev => ({ ...prev, brand: e.target.value }))}
-                    className="w-full bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20"
-                  />
+                    className="w-full bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20 cursor-pointer"
+                  >
+                    <option value="" disabled>Select a brand...</option>
+                    {brands.map(b => (
+                      <option key={b.id} value={b.name}>{b.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Category */}
@@ -1544,6 +1695,70 @@ export function AdminDashboard({
                   </span>
                 ) : (
                   categoryModalState.mode === "delete" ? "Delete" : "Save"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Brand Modal */}
+      {brandModalState.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col gap-4 transform scale-100 transition-all text-sm text-foreground">
+            {brandModalState.mode === "delete" ? (
+              <div className="text-center">
+                <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-base mb-1">Delete Brand</h3>
+                <p className="text-muted-foreground text-xs mb-4">
+                  Are you sure you want to delete the "{brandModalState.brand?.name}" brand? 
+                  Note: You cannot delete a brand that is currently assigned to any products.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h3 className="font-bold text-base mb-4">
+                  {brandModalState.mode === "add" ? "Add New Brand" : "Edit Brand"}
+                </h3>
+                <label className="block text-muted-foreground text-xs font-semibold uppercase mb-1.5">Brand Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={brandModalState.inputValue}
+                  onChange={(e) => setBrandModalState(prev => ({ ...prev, inputValue: e.target.value, error: "" }))}
+                  className="w-full bg-[#f6f6f6] border border-transparent rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9963e]/20"
+                  autoFocus
+                />
+              </div>
+            )}
+            
+            {brandModalState.error && (
+              <div className="text-red-500 text-xs text-center mt-2 font-medium">
+                {brandModalState.error}
+              </div>
+            )}
+            
+            <div className="flex gap-2 mt-2">
+              <button
+                disabled={brandModalState.loading}
+                onClick={() => setBrandModalState(prev => ({ ...prev, isOpen: false }))}
+                className="flex-1 bg-[#f6f6f6] hover:bg-[#eeeeee] text-foreground text-xs font-bold py-3 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={brandModalState.loading}
+                onClick={handleBrandModalSubmit}
+                className={`flex-1 text-white text-xs font-bold py-3 rounded-xl transition-all cursor-pointer disabled:opacity-50 ${brandModalState.mode === "delete" ? 'bg-red-600 hover:bg-red-700' : 'bg-[#c9963e] hover:bg-[#b8852e]'}`}
+              >
+                {brandModalState.loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin" /> Processing...
+                  </span>
+                ) : (
+                  brandModalState.mode === "delete" ? "Delete" : "Save"
                 )}
               </button>
             </div>
