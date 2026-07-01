@@ -69,6 +69,33 @@ export default function App() {
     fetchAndSeed();
   }, [mounted]);
 
+  // Scroll Reveal Intersection Observer
+  useEffect(() => {
+    if (loading) return;
+
+    const revealElements = document.querySelectorAll(".reveal");
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("active");
+          }
+        });
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the element is visible
+        rootMargin: "0px 0px -50px 0px" // Slight offset to make scroll feel smoother
+      }
+    );
+
+    revealElements.forEach((el) => observer.observe(el));
+
+    return () => {
+      revealElements.forEach((el) => observer.unobserve(el));
+    };
+  }, [loading, productsState]);
+
   const scrollSmoothTo = (targetY: number) => {
     const startPosition = window.scrollY;
     const distance = targetY - startPosition;
@@ -221,7 +248,7 @@ export default function App() {
           onContact={() => scrollTo(inquiryRef)}
         />
 
-        <div ref={catalogRef}>
+        <div ref={catalogRef} className="reveal">
           <ProductCatalog
             products={productsState}
             categories={categoriesState}
@@ -231,27 +258,31 @@ export default function App() {
           />
         </div>
 
-        <div ref={inquiryRef}>
+        <div ref={inquiryRef} className="reveal">
           <InquirySection defaultProduct={inquiryProduct} categories={categoriesState} />
         </div>
 
-        <div ref={whyChooseRef}>
+        <div ref={whyChooseRef} className="reveal">
           <WhyChoose />
         </div>
 
-        <div ref={categoriesRef}>
+        <div ref={categoriesRef} className="reveal">
           <FeaturedCategories 
             products={productsState} 
             onSelectCategory={handleSelectCategory} 
           />
         </div>
 
-        <div ref={storeRef}>
+        <div ref={storeRef} className="reveal">
           <StoreInfo />
         </div>
       </main>
 
-      <Footer onNavigate={handleNavigate} />
+      <Footer 
+        onNavigate={handleNavigate} 
+        onSelectCategory={handleSelectCategory}
+        categories={categoriesState} 
+      />
 
       <ProductDetailModal
         product={selectedProduct}

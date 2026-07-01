@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Phone, MessageCircle, Clock, Navigation, ExternalLink, Copy, Check } from "lucide-react";
+import { MapPin, Phone, Clock, Navigation, ExternalLink, Copy, Check } from "lucide-react";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 
 export function StoreInfo() {
   const [copied, setCopied] = useState(false);
@@ -167,6 +168,30 @@ export function StoreInfo() {
                   </div>
                   <div>
                     <div className="font-medium">+91 79740 24513</div>
+                    <div className="text-[11px] text-white/25 mt-0.5">Tap to call (Main)</div>
+                  </div>
+                </a>
+                <a
+                  href="tel:+916268960042"
+                  className="flex items-center gap-3 text-white/50 hover:text-white text-sm transition-all group/link px-3 py-2.5 rounded-xl hover:bg-white/5 -mx-3"
+                >
+                  <div className="w-8 h-8 bg-white/5 group-hover/link:bg-white/10 rounded-lg flex items-center justify-center transition-colors flex-shrink-0">
+                    <Phone className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-medium">+91 62689 60042</div>
+                    <div className="text-[11px] text-white/25 mt-0.5">Tap to call</div>
+                  </div>
+                </a>
+                <a
+                  href="tel:+919827844349"
+                  className="flex items-center gap-3 text-white/50 hover:text-white text-sm transition-all group/link px-3 py-2.5 rounded-xl hover:bg-white/5 -mx-3"
+                >
+                  <div className="w-8 h-8 bg-white/5 group-hover/link:bg-white/10 rounded-lg flex items-center justify-center transition-colors flex-shrink-0">
+                    <Phone className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-medium">+91 98278 44349</div>
                     <div className="text-[11px] text-white/25 mt-0.5">Tap to call</div>
                   </div>
                 </a>
@@ -177,7 +202,7 @@ export function StoreInfo() {
                   className="flex items-center gap-3 text-white/50 hover:text-white text-sm transition-all group/link px-3 py-2.5 rounded-xl hover:bg-[#25D366]/5 -mx-3"
                 >
                   <div className="w-8 h-8 bg-[#25D366]/10 group-hover/link:bg-[#25D366]/15 rounded-lg flex items-center justify-center transition-colors flex-shrink-0">
-                    <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                    <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
                   </div>
                   <div>
                     <div className="font-medium">+91 79740 24513</div>

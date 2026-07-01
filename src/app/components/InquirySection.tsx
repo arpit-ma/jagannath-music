@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Phone, MessageCircle, Send, CheckCircle2, Loader2 } from "lucide-react";
+import { Phone, Send, CheckCircle2, Loader2 } from "lucide-react";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 import type { Category } from "../data/products";
 import { db } from "../lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -98,7 +99,7 @@ export function InquirySection({ defaultProduct = "", categories }: InquirySecti
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2.5 bg-[#25D366] text-white px-6 py-3.5 rounded-full text-sm font-semibold hover:bg-[#128C7E] transition-all"
               >
-                <MessageCircle className="w-4 h-4" />
+                <WhatsAppIcon className="w-4 h-4" />
                 WhatsApp Inquiry
               </a>
             </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { X, CheckCircle2, Phone, MessageCircle } from "lucide-react";
+import { X, Phone, Heart, CheckCircle2, AlertCircle } from "lucide-react";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 import type { Product } from "../data/products";
 
 interface ProductDetailModalProps {
@@ -174,9 +175,9 @@ export function ProductDetailModal({
                 rel="noopener noreferrer"
                 className="group/wa relative flex-1 flex items-center justify-center gap-1.5 px-2 bg-[#25D366] text-white rounded-xl py-3 text-sm font-bold uppercase tracking-wide overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#25D366]/40 active:translate-y-0 active:scale-95"
               >
-                <div className="absolute inset-0 bg-[#128C7E] translate-y-[100%] group-hover/wa:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+                <div className="absolute inset-0 bg-[#128C7E] translate-y-[100%] group-hover/wa:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1/0.22,1)]" />
                 <div className="absolute top-0 -left-[100%] w-[120%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-[45deg] group-hover/wa:left-[100%] transition-all duration-700 ease-in-out delay-75 z-10 pointer-events-none" />
-                <MessageCircle className="w-4 h-4 shrink-0 transition-transform duration-500 group-hover/wa:scale-110 group-hover/wa:-rotate-12 relative z-20" />
+                <WhatsAppIcon className="w-4 h-4 shrink-0 transition-transform duration-500 group-hover/wa:scale-110 group-hover/wa:-rotate-12 relative z-20" />
                 <span className="whitespace-nowrap relative z-20">WhatsApp</span>
               </a>
             </div>

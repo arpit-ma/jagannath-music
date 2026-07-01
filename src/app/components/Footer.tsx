@@ -1,17 +1,15 @@
-import { Phone, MessageCircle, MapPin, Instagram, Facebook } from "lucide-react";
+import { Phone, MapPin, Instagram, Facebook } from "lucide-react";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import logoSrc from "@/imports/IMG_0835.png";
 
 interface FooterProps {
   onNavigate: (section: string) => void;
+  onSelectCategory: (category: string) => void;
+  categories: string[];
 }
 
-export function Footer({ onNavigate }: FooterProps) {
-  const categories = [
-    "Guitar", "Tabla", "Harmonium", "Keyboard",
-    "Octapad", "Drum Set", "Studio Monitors",
-    "Headphones", "Microphones", "Audio Interfaces", "Mixers", "Accessories"
-  ];
+export function Footer({ onNavigate, onSelectCategory, categories }: FooterProps) {
 
   const quickLinks = [
     { label: "Product Catalog", section: "catalog" },
@@ -65,10 +63,10 @@ export function Footer({ onNavigate }: FooterProps) {
               Product Categories
             </h4>
             <ul className="space-y-2">
-              {categories.slice(0, 6).map((cat) => (
+              {categories.filter(c => c !== "All").slice(0, 6).map((cat) => (
                 <li key={cat}>
                   <button
-                    onClick={() => onNavigate("catalog")}
+                    onClick={() => onSelectCategory(cat)}
                     className="text-white/40 hover:text-white text-sm transition-colors text-left"
                   >
                     {cat}
@@ -122,7 +120,7 @@ export function Footer({ onNavigate }: FooterProps) {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2.5 text-white/40 hover:text-white text-sm transition-colors"
                 >
-                  <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                  <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
                   +91 79740 24513
                 </a>
               </li>
