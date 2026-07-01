@@ -282,8 +282,36 @@ export default function AdminPage() {
 
   const handleUpdateCategory = async (id: string, newName: string) => {
     try {
+      // Find the old category name before updating
+      const oldCategory = categoriesState.find((c) => c.id === id);
+      const oldName = oldCategory?.name;
+
+      // Update the category document itself
       const docRef = doc(db, "categories", id);
       await updateDoc(docRef, { name: newName });
+
+      // Update all products that reference the old category name
+      if (oldName && oldName !== newName) {
+        const productsWithOldCategory = productsState.filter(
+          (p) => p.category === oldName
+        );
+        if (productsWithOldCategory.length > 0) {
+          const batch = writeBatch(db);
+          for (const product of productsWithOldCategory) {
+            const productRef = doc(db, "products", product.id);
+            batch.update(productRef, { category: newName });
+          }
+          await batch.commit();
+
+          // Update local products state to reflect the category name change
+          setProductsState((prev) =>
+            prev.map((p) =>
+              p.category === oldName ? { ...p, category: newName } : p
+            )
+          );
+        }
+      }
+
       setCategoriesState((prev) =>
         prev.map((c) => (c.id === id ? { ...c, name: newName } : c))
       );
@@ -327,8 +355,36 @@ export default function AdminPage() {
 
   const handleUpdateBrand = async (id: string, newName: string) => {
     try {
+      // Find the old brand name before updating
+      const oldBrand = brandsState.find((b) => b.id === id);
+      const oldName = oldBrand?.name;
+
+      // Update the brand document itself
       const docRef = doc(db, "brands", id);
       await updateDoc(docRef, { name: newName });
+
+      // Update all products that reference the old brand name
+      if (oldName && oldName !== newName) {
+        const productsWithOldBrand = productsState.filter(
+          (p) => p.brand === oldName
+        );
+        if (productsWithOldBrand.length > 0) {
+          const batch = writeBatch(db);
+          for (const product of productsWithOldBrand) {
+            const productRef = doc(db, "products", product.id);
+            batch.update(productRef, { brand: newName });
+          }
+          await batch.commit();
+
+          // Update local products state to reflect the brand name change
+          setProductsState((prev) =>
+            prev.map((p) =>
+              p.brand === oldName ? { ...p, brand: newName } : p
+            )
+          );
+        }
+      }
+
       setBrandsState((prev) =>
         prev.map((b) => (b.id === id ? { ...b, name: newName } : b))
       );
